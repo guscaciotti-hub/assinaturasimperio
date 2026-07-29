@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gerador de Assinaturas — Império Global | Evoluze Marketing</title>
+<style>
+  :root{--evz:#00D4C6;--ink:#12161B;--panel:#1A1F26;--line:#2B333D;--txt:#E6EAEF;--mut:#8D98A5}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--txt);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:14px;line-height:1.5}
+  header{padding:20px 28px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  header h1{margin:0;font-size:16px;font-weight:600}
+  header span{color:var(--mut);font-size:12px}
+  .wrap{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 62px)}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .form{padding:22px 26px;border-right:1px solid var(--line);background:var(--panel)}
+  .form h2{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--evz);margin:0 0 12px}
+  hr{border:0;border-top:1px solid var(--line);margin:24px 0}
+  label{display:block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:0 0 5px}
+  input,textarea{width:100%;padding:9px 11px;background:#12171D;border:1px solid var(--line);border-radius:6px;color:var(--txt);font:inherit;font-size:13px;margin-bottom:12px}
+  input:focus,textarea:focus{outline:2px solid var(--evz);outline-offset:-1px;border-color:transparent}
+  textarea{min-height:96px;resize:vertical;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .out{padding:22px 26px;overflow:auto}
+  .bar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+  button{background:var(--evz);color:#04231F;border:0;border-radius:6px;padding:9px 16px;font:inherit;font-weight:600;font-size:13px;cursor:pointer}
+  button.ghost{background:transparent;color:var(--txt);border:1px solid var(--line);font-weight:500}
+  button:hover{filter:brightness(1.08)}
+  .stage{background:#fff;padding:16px;margin-bottom:10px;display:inline-block;max-width:100%;overflow:auto;border-radius:4px}
+  .bd{background:var(--evz);color:#04231F;padding:2px 7px;border-radius:4px;font-weight:700;letter-spacing:.5px}
+  .who{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);margin:0 0 8px}
+  .item{margin-bottom:22px}
+  details{border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:var(--panel);margin-top:8px}
+  summary{cursor:pointer;font-size:12px;color:var(--mut)}
+  pre{white-space:pre-wrap;word-break:break-all;font-size:11px;color:var(--mut);margin:12px 0 0;max-height:260px;overflow:auto}
+  .check{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .check input{width:auto;margin:0}
+  .check label{margin:0;text-transform:none;letter-spacing:0;font-size:13px;color:var(--txt)}
+  .bar2{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .sm{padding:7px 11px;font-size:12px}
+  .reg{max-height:210px;overflow:auto;border:1px solid var(--line);border-radius:6px;margin-bottom:10px}
+  .reg:empty{display:none}
+  .ri{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:12.5px}
+  .ri:last-child{border-bottom:0}
+  .ri .cod{color:var(--evz);font-weight:600;font-variant-numeric:tabular-nums}
+  .ri .nm{flex:1;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ri .dt{color:var(--mut);font-size:11px}
+  .ri i{cursor:pointer;color:var(--mut);font-style:normal;padding:0 3px}
+  .ri i:hover{color:var(--evz)}
+  .presets{display:flex;gap:6px;margin:-6px 0 8px}
+  .mini{background:#12171D;border:1px solid var(--line);color:var(--mut);padding:5px 9px;font-size:11px;font-weight:500;border-radius:5px}
+  .mini:hover{color:var(--evz);border-color:var(--evz)}
+  .hint{font-size:12px;color:var(--mut);margin:-4px 0 14px}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--evz);color:#04231F;padding:10px 20px;border-radius:6px;font-weight:600;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:50}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .link{background:#0E2A28;border:1px solid var(--evz);border-radius:8px;padding:12px 14px;margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .link b{color:var(--evz);font-size:11px;letter-spacing:1px;text-transform:uppercase}
+  .link a{color:var(--txt);font-size:12.5px;word-break:break-all;text-decoration:none;border-bottom:1px dotted var(--mut)}
+  .sync{font-size:11px;color:var(--mut)}
+  .sync.err{color:#ff8f8f}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Gerador de Assinaturas — Império Global</h1>
+  <span>Evoluze Marketing · uso interno · entregas guardadas em base de dados</span>
+  <span id="sync" class="sync" style="margin-left:auto"></span>
+</header>
+
+<div class="wrap">
+  <div class="form">
+    <h2>Fixos</h2>
+    <div class="row">
+      <div><label>Largura do logo (cm)</label><input id="logoCM" value="4,5"></div>
+      <div><label>Site</label><input id="site" value="imperioglobal.eu"></div>
+    </div>
+    <div class="presets"><button class="mini" onclick="setCM(3.5)">3,5</button><button class="mini" onclick="setCM(4)">4,0</button><button class="mini" onclick="setCM(4.5)">4,5</button><button class="mini" onclick="setCM(5)">5,0</button><button class="mini" onclick="setCM(5.5)">5,5</button></div>
+    <div class="hint" id="dimHint"></div>
+    <label>Escala do texto (%)</label><input id="escala" value="92">
+    <div class="presets" style="margin-top:-6px"><button class="mini" onclick="setEsc(85)">85</button><button class="mini" onclick="setEsc(92)">92</button><button class="mini" onclick="setEsc(100)">100</button><button class="mini" onclick="setEsc(110)">110</button></div>
+    <label>Linha da empresa</label>
+    <input id="empresa" value="Império Global Telecomunicações">
+
+    <hr>
+    <h2>Rodapé institucional</h2>
+    <div class="check"><input type="checkbox" id="usaRodape" checked><label for="usaRodape">Incluir rodapé legal</label></div>
+    <div class="check"><input type="checkbox" id="usaMoldura" checked><label for="usaMoldura">Moldura arredondada</label></div>
+    <label>Morada</label><input id="mor1" value="Rua da Floresta, 1521, Azabucho">
+    <label>Código postal e localidade</label><input id="mor2" value="2410-021 Leiria, Portugal">
+    <label>Telefone geral</label><input id="telGeral" value="+351 244 811 076">
+    <div class="row">
+      <div><label>NIF / Matrícula</label><input id="nif" value="514 370 084"></div>
+      <div><label>Alvará n.º</label><input id="alvara" value="146039"></div>
+    </div>
+
+    <hr>
+    <h2>Colaborador</h2>
+    <div class="row">
+      <div><label>Código</label><input id="codigo" placeholder="automático"></div>
+      <div><label>Nome</label><input id="nome" value="Nome Apelido"></div>
+    </div>
+    <label>Cargo / Função</label><input id="cargo" value="Cargo / Função">
+    <label>E-mail</label><input id="email" value="nome@imperioglobal.eu">
+    <label>Telefone</label><input id="tel" value="+351 000 000 000">
+
+    <hr>
+    <h2>Registo de entregas</h2>
+    <div class="bar2">
+      <button class="ghost sm" onclick="guardarAtual()">Guardar no registo</button>
+      <button class="ghost sm" onclick="verRegisto()">Ver todas</button>
+      <button class="ghost sm" onclick="recarregar()">Atualizar</button>
+    </div>
+    <div id="listaReg" class="reg"></div>
+    <div class="bar2">
+      <button class="ghost sm" onclick="exportarRegisto()">Exportar .json (backup)</button>
+      <button class="ghost sm" onclick="document.getElementById('impFile').click()">Importar .json</button>
+      <input type="file" id="impFile" accept="application/json" style="display:none" onchange="importarRegisto(this)">
+    </div>
+    <div class="hint" id="regHint"></div>
+
+    <hr>
+    <h2>Lote (colar da planilha)</h2>
+    <div class="hint">Copie as colunas Nome · Cargo · E-mail · Telefone do Excel e cole aqui. Aceita tabulação ou ponto e vírgula.</div>
+    <textarea id="lote" placeholder="Soraia Ferreira&#9;Assistente de Direção&#9;soraia.ferreira@imperioglobal.eu&#9;+351 000 000 000"></textarea>
+    <button class="ghost" onclick="gerarLote()">Gerar todas</button>
+  </div>
+
+  <div class="out">
+    <div class="link">
+      <b>Link do cliente</b>
+      <a id="clienteLink" href="entregas.html" target="_blank">entregas.html</a>
+      <button class="sm" onclick="copiarLink()">Copiar link</button>
+      <span class="hint" style="margin:0">Este é o link fixo que o cliente usa para ver e copiar as assinaturas — atualiza automaticamente.</span>
+    </div>
+    <div class="bar">
+      <button onclick="guardarLista()">Guardar todas em entregas</button>
+      <button class="ghost" onclick="copiar('sig0')">Copiar a primeira</button>
+      <button class="ghost" onclick="window.open('entregas.html','_blank')">Abrir página do cliente</button>
+    </div>
+    <div id="palco"></div>
+    <details><summary>Ver código HTML</summary><pre id="code"></pre></details>
+  </div>
+</div>
+
+<div id="clipHolder" style="position:fixed;left:-99999px;top:0;background:#fff"></div>
+<div class="toast" id="toast">Assinatura copiada</div>
+
+<script src="assets/logo.js"></script>
+<script src="assets/supabase.js"></script>
+<script src="assets/sig-core.js"></script>
+<script src="assets/db.js"></script>
+<script>
+const AZUL=IGCore.AZUL, SINAL=IGCore.SINAL, CORPO=IGCore.CORPO;
+const DPI=IGCore.DPI, CM=IGCore.CM, RATIO=IGCore.RATIO;
+const esc=IGCore.esc, slug=IGCore.slug, cmParaPx=IGCore.cmParaPx;
+
+function v(id){return document.getElementById(id).value.trim()}
+
+// ---- configuração (fixos + rodapé) lida do formulário ----
+const CONFIG_IDS=['logoCM','site','escala','empresa','mor1','mor2','telGeral','nif','alvara'];
+const CHECK_IDS=['usaRodape','usaMoldura'];
+function cfg(){
+  return {
+    logoCM:v('logoCM'), site:v('site'), escala:v('escala'), empresa:v('empresa'),
+    usaRodape:document.getElementById('usaRodape').checked,
+    usaMoldura:document.getElementById('usaMoldura').checked,
+    mor1:v('mor1'), mor2:v('mor2'), telGeral:v('telGeral'), nif:v('nif'), alvara:v('alvara')
+  };
+}
+function aplicarCfg(c){
+  document.getElementById('logoCM').value=c.logoCM;
+  document.getElementById('site').value=c.site;
+  document.getElementById('escala').value=c.escala;
+  document.getElementById('empresa').value=c.empresa;
+  document.getElementById('usaRodape').checked=!!c.usaRodape;
+  document.getElementById('usaMoldura').checked=!!c.usaMoldura;
+  document.getElementById('mor1').value=c.mor1;
+  document.getElementById('mor2').value=c.mor2;
+  document.getElementById('telGeral').value=c.telGeral;
+  document.getElementById('nif').value=c.nif;
+  document.getElementById('alvara').value=c.alvara;
+}
+
+function montar(p){return IGCore.montar(cfg(),p)}
+function dim(){return IGCore.dim(cfg())}
+function larguraCM(){return IGCore.larguraCM(cfg())}
+function linhasRodape(){return IGCore.linhasRodape(cfg())}
+const LOGO=IGCore.LOGO;
+
+function setCM(n){document.getElementById('logoCM').value=String(n).replace('.',',');lista[0]=atual();render();salvarConfig()}
+function setEsc(n){document.getElementById('escala').value=n;lista[0]=atual();render();salvarConfig()}
+
+// ---- estado de sincronização (badge no cabeçalho) ----
+function sync(msg,err){const s=document.getElementById('sync');s.textContent=msg||'';s.className='sync'+(err?' err':'')}
+
+// ---- desenho em canvas (PNG nítido), igual ao original ----
+const logoImg=new Image(); logoImg.src=LOGO;
+
+function desenhar(p,fator){
+  const d=dim(), lw=cmParaPx(larguraCM()), lh=Math.round(lw/RATIO);
+  const c0=cfg(), emp=c0.empresa, site=c0.site.replace(/^https?:\/\//,'');
+  const l2=p.tel?`${p.email} · ${p.tel}`:p.email;
+  const c=document.createElement('canvas'), ctx=c.getContext('2d');
+  ctx.font=`bold ${d.nome}px Arial`; const w1=ctx.measureText(p.nome).width;
+  ctx.font=`bold ${d.cargo}px Arial`; const w2=ctx.measureText(p.cargo).width;
+  ctx.font=`${d.corpo}px Arial`;
+  const w3=Math.max(ctx.measureText(emp).width,ctx.measureText(l2).width,ctx.measureText(site).width);
+  const tw=Math.ceil(Math.max(w1,w2,w3));
+  const th=d.nomeLh+d.g1+d.cargoLh+d.g2+3*d.corpoLh, topo=Math.max(lh,th);
+  const rod=linhasRodape();
+  ctx.font=`${d.rod}px Arial`;
+  const rw=rod?Math.ceil(Math.max(...rod.map(t=>ctx.measureText(t).width))):0;
+  const rh=rod?d.rodTop+1+d.rodGap+rod.length*d.rodLh:0;
+  const W=Math.max(lw+2*d.gap+d.regua+tw,rw), H=topo+rh;
+  c.width=W*fator; c.height=H*fator;
+  ctx.scale(fator,fator);
+  ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H);
+  ctx.drawImage(logoImg,0,Math.round((topo-lh)/2),lw,lh);
+  ctx.fillStyle=SINAL; ctx.fillRect(lw+d.gap,0,d.regua,topo);
+  ctx.textBaseline='top';
+  if(rod){
+    ctx.fillStyle='#E1E7EC'; ctx.fillRect(0,topo+d.rodTop,W,1);
+    ctx.fillStyle='#9AA3AD'; ctx.font=`${d.rod}px Arial`;
+    rod.forEach((t,k)=>ctx.fillText(t,0,topo+d.rodTop+1+d.rodGap+k*d.rodLh+2));
+  }
+  let x=lw+2*d.gap+d.regua, y=Math.round((topo-th)/2);
+  ctx.fillStyle=AZUL;  ctx.font=`bold ${d.nome}px Arial`; ctx.fillText(p.nome,x,y+2);  y+=d.nomeLh+d.g1;
+  ctx.fillStyle=SINAL; ctx.font=`bold ${d.cargo}px Arial`; ctx.fillText(p.cargo,x,y+2); y+=d.cargoLh+d.g2;
+  ctx.fillStyle=CORPO; ctx.font=`${d.corpo}px Arial`;
+  [emp,l2,site].forEach(t=>{ctx.fillText(t,x,y+2); y+=d.corpoLh;});
+  return c;
+}
+
+function capturar(el,escala){
+  return new Promise((ok,falha)=>{
+    const r=el.getBoundingClientRect();
+    const W=Math.ceil(r.width)+2, H=Math.ceil(r.height)+2;
+    const corpo=new XMLSerializer().serializeToString(el);
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'">'
+      +'<foreignObject x="0" y="0" width="100%" height="100%">'
+      +'<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+W+'px;font-family:Arial,Helvetica,sans-serif;">'
+      +corpo+'</div></foreignObject></svg>';
+    const SS=4;
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const a=document.createElement('canvas');
+        a.width=W*SS; a.height=H*SS;
+        const actx=a.getContext('2d');
+        actx.fillStyle='#ffffff'; actx.fillRect(0,0,a.width,a.height);
+        actx.imageSmoothingEnabled=true; actx.imageSmoothingQuality='high';
+        actx.drawImage(img,0,0,a.width,a.height);
+        const c=document.createElement('canvas');
+        c.width=Math.round(W*escala); c.height=Math.round(H*escala);
+        const ctx=c.getContext('2d');
+        ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,c.width,c.height);
+        ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+        ctx.drawImage(a,0,0,c.width,c.height);
+        ok(c);
+      }catch(e){ falha(e); }
+    };
+    img.onerror=falha;
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  });
+}
+
+function copiarImagem(i){
+  const el=document.getElementById('sig'+i);
+  const W=Math.ceil(el.getBoundingClientRect().width)+2;
+  capturar(el,2).then(c=>{
+    const url=c.toDataURL('image/png');
+    const holder=document.getElementById('clipHolder');
+    holder.innerHTML='';
+    const img=new Image();
+    img.onload=()=>{
+      holder.appendChild(img);
+      const rng=document.createRange(); rng.selectNodeContents(holder);
+      const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(rng);
+      document.execCommand('copy'); sel.removeAllRanges();
+      setTimeout(()=>{holder.innerHTML='';},100);
+      const t=document.getElementById('toast');
+      t.textContent='Imagem copiada (nítida)'; t.classList.add('on');
+      setTimeout(()=>{t.classList.remove('on'); t.textContent='Assinatura copiada';},1600);
+    };
+    img.width=W; img.style.width=W+'px'; img.style.height='auto'; img.style.display='block';
+    img.src=url;
+  }).catch(()=>alert('Não foi possível gerar a imagem neste navegador. Use o botão Copiar.'));
+}
+
+function guardar(canvas,nome){
+  canvas.toBlob(b=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(b); a.download='assinatura-'+slug(nome)+'.png'; a.click();
+  },'image/png');
+}
+function baixarPNG(i){
+  const p=lista[i], el=document.getElementById('sig'+i);
+  capturar(el,1).then(c=>guardar(c,p.nome)).catch(()=>guardar(desenhar(p,1),p.nome));
+}
+
+// ================== REGISTO (agora em base de dados) ==================
+let registo=[];
+let cfgTimer=null;
+
+function salvarConfig(){
+  clearTimeout(cfgTimer);
+  sync('a guardar definições…');
+  cfgTimer=setTimeout(()=>{
+    IGDB.saveConfig(cfg()).then(()=>sync('definições guardadas'))
+      .catch(e=>{console.error(e);sync('erro ao guardar definições',true)});
+  },600);
+}
+
+function recarregar(){
+  sync('a carregar…');
+  return IGDB.list().then(rows=>{
+    registo=rows; renderRegisto(); render(); sync('sincronizado');
+  }).catch(e=>{console.error(e);sync('erro de ligação ao banco',true)});
+}
+
+function proxCodigo(){
+  const n=registo.reduce((m,e)=>Math.max(m,parseInt(String(e.codigo||'').replace(/\D/g,''))||0),0)+1;
+  return 'IG-'+String(n).padStart(3,'0');
+}
+function codigoDe(p){
+  const e=registo.find(x=>x.email&&p.email&&x.email===p.email);
+  return e?e.codigo:null;
+}
+
+function guardarPessoa(p,silencioso){
+  if(!p.nome||p.nome==='Nome Apelido'){ if(!silencioso)alert('Preencha o nome antes de guardar.'); return Promise.resolve(null) }
+  sync('a guardar…');
+  return IGDB.guardar(p).then(row=>{
+    const i=registo.findIndex(e=>e.id===row.id);
+    if(i>=0) registo[i]=row; else registo.push(row);
+    registo.sort((a,b)=>String(a.codigo).localeCompare(String(b.codigo),'pt',{numeric:true}));
+    sync('guardado ✓');
+    return row.codigo;
+  }).catch(e=>{
+    console.error(e);
+    const m=String(e.message||e);
+    if(!silencioso){
+      if(m.indexOf('codigo_em_uso')>=0) alert('Esse código já pertence a outra pessoa.');
+      else alert('Erro ao guardar no banco. Verifique a ligação.');
+    }
+    sync('erro ao guardar',true);
+    return null;
+  });
+}
+
+function guardarAtual(){
+  guardarPessoa(atual()).then(cod=>{
+    if(cod){document.getElementById('codigo').value=cod;renderRegisto();render();}
+  });
+}
+function guardarUma(i){
+  guardarPessoa(lista[i]).then(cod=>{
+    if(cod){lista[i].codigo=cod;renderRegisto();render();}
+  });
+}
+function guardarLista(){
+  let n=0;
+  const passos=lista.map(p=>()=>guardarPessoa(p,true).then(c=>{if(c){p.codigo=c;n++}}));
+  passos.reduce((ch,f)=>ch.then(f),Promise.resolve()).then(()=>{
+    renderRegisto(); render();
+    const t=document.getElementById('toast');
+    t.textContent=n+' assinatura(s) em entregas'; t.classList.add('on');
+    setTimeout(()=>{t.classList.remove('on'); t.textContent='Assinatura copiada'},1800);
+  });
+}
+
+function carregarEntrada(i){
+  const e=registo[i];
+  ['codigo','nome','cargo','email','tel'].forEach(k=>document.getElementById(k).value=e[k]||'');
+  lista=[atual()]; render();
+}
+function removerEntrada(i){
+  const e=registo[i];
+  if(!confirm('Remover '+e.nome+' do registo? Isto apaga a entrega no banco.'))return;
+  sync('a remover…');
+  IGDB.remover(e.id).then(()=>{registo.splice(i,1);renderRegisto();render();sync('removido')})
+    .catch(err=>{console.error(err);sync('erro ao remover',true)});
+}
+function verRegisto(){
+  if(!registo.length){alert('O registo está vazio.');return}
+  lista=registo.map(e=>({codigo:e.codigo,nome:e.nome,cargo:e.cargo,email:e.email,tel:e.tel,data:e.data}));
+  render();
+}
+
+function renderRegisto(){
+  const c=document.getElementById('listaReg'); c.innerHTML='';
+  registo.forEach((e,i)=>{
+    const d=document.createElement('div'); d.className='ri';
+    d.innerHTML=`<span class="cod">${esc(e.codigo)}</span><span class="nm">${esc(e.nome)}</span><span class="dt">${esc(e.data||'')}</span>`;
+    const ab=document.createElement('i'); ab.textContent='abrir'; ab.onclick=()=>carregarEntrada(i);
+    const rm=document.createElement('i'); rm.textContent='×'; rm.onclick=()=>removerEntrada(i);
+    d.appendChild(ab); d.appendChild(rm); c.appendChild(d);
+  });
+  document.getElementById('regHint').textContent=
+    registo.length?`${registo.length} assinatura(s) no registo · próximo código ${proxCodigo()}`
+                  :'Registo vazio. Guarde a primeira assinatura para começar a numerar.';
+}
+
+function exportarRegisto(){
+  const doc=JSON.stringify({projeto:'Império Global — assinaturas',atualizado:new Date().toISOString(),entradas:registo},null,2);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([doc],{type:'application/json'}));
+  a.download='registo-assinaturas-imperio-global.json'; a.click();
+}
+
+function importarRegisto(input){
+  const f=input.files&&input.files[0]; if(!f)return;
+  const fr=new FileReader();
+  fr.onload=()=>{
+    try{
+      const d=JSON.parse(fr.result);
+      const novas=Array.isArray(d)?d:(d.entradas||[]);
+      if(!novas.length){alert('Ficheiro sem entradas.');input.value='';return}
+      if(!confirm('Importar '+novas.length+' entrada(s) para o banco?')){input.value='';return}
+      sync('a importar…');
+      const passos=novas.map(nx=>()=>IGDB.guardar({nome:nx.nome,cargo:nx.cargo,email:nx.email,tel:nx.tel,codigo:nx.codigo}).catch(()=>null));
+      passos.reduce((ch,fn)=>ch.then(fn),Promise.resolve()).then(()=>recarregar());
+    }catch(e){ alert('Ficheiro inválido.'); }
+    input.value='';
+  };
+  fr.readAsText(f);
+}
+
+// ================== COLABORADOR / RENDER ==================
+function atual(){return{codigo:v('codigo')||null,nome:v('nome'),cargo:v('cargo'),email:v('email'),tel:v('tel')}}
+let lista=[atual()];
+
+function fmt(n){return n.toFixed(2).replace('.',',')}
+function atualizarHint(){
+  const cm=larguraCM(), px=cmParaPx(cm), hPx=Math.round(px/RATIO), hCm=hPx*CM/DPI;
+  const s0=document.getElementById('sig0');
+  const tot=s0?`  ·  assinatura ${Math.round(s0.getBoundingClientRect().width)} × ${Math.round(s0.getBoundingClientRect().height)} px`:'';
+  document.getElementById('dimHint').textContent =
+    `Logótipo ${fmt(cm)} × ${fmt(hCm)} cm (${px} × ${hPx} px)${tot}`;
+}
+
+function render(){
+  const palco=document.getElementById('palco'); palco.innerHTML='';
+  lista.forEach((p,i)=>{
+    const d=document.createElement('div'); d.className='item';
+    const cod=p.codigo||codigoDe(p);
+    d.innerHTML=`<p class="who">${cod?`<span class="bd">${esc(cod)}</span> `:''}${esc(p.nome)}</p><div class="stage"><div id="sig${i}">${montar(p)}</div></div>`;
+    const sv=document.createElement('button');
+    sv.className=cod?'ghost':''; sv.textContent=cod?'Atualizar em entregas':'Guardar em entregas';
+    sv.onclick=()=>guardarUma(i); d.appendChild(sv);
+    const b=document.createElement('button'); b.className='ghost'; b.textContent='Copiar';
+    b.style.marginLeft='8px'; b.onclick=()=>copiar('sig'+i); d.appendChild(b);
+    const m=document.createElement('button'); m.className='ghost'; m.textContent='Copiar imagem';
+    m.style.marginLeft='8px'; m.onclick=()=>copiarImagem(i); d.appendChild(m);
+    const g=document.createElement('button'); g.className='ghost'; g.textContent='PNG';
+    g.style.marginLeft='8px'; g.onclick=()=>baixarPNG(i); d.appendChild(g);
+    palco.appendChild(d);
+  });
+  atualizarHint();
+  document.getElementById('code').textContent=montar(lista[0]).replace(LOGO,'[logótipo embutido em base64]');
+}
+
+function gerarLote(){
+  const linhas=v('lote').split('\n').map(l=>l.trim()).filter(Boolean);
+  lista=[atual()];
+  linhas.forEach(l=>{
+    const c=l.split(l.includes('\t')?'\t':';').map(x=>x.trim());
+    if(c[0]){const p={nome:c[0],cargo:c[1]||'',email:c[2]||'',tel:c[3]||''};p.codigo=codigoDe(p);lista.push(p)}
+  });
+  render();
+}
+
+function copiar(id){
+  const el=document.getElementById(id), r=document.createRange();
+  r.selectNodeContents(el);
+  const s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  document.execCommand('copy'); s.removeAllRanges();
+  const t=document.getElementById('toast'); t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),1600);
+}
+
+function copiarLink(){
+  const url=document.getElementById('clienteLink').href;
+  navigator.clipboard.writeText(url).then(()=>{
+    const t=document.getElementById('toast'); t.textContent='Link do cliente copiado'; t.classList.add('on');
+    setTimeout(()=>{t.classList.remove('on');t.textContent='Assinatura copiada'},1600);
+  }).catch(()=>prompt('Copie o link:',url));
+}
+
+// ---- ligações de eventos ----
+CONFIG_IDS.forEach(id=>document.getElementById(id).addEventListener('input',()=>{lista[0]=atual();render();salvarConfig()}));
+CHECK_IDS.forEach(id=>document.getElementById(id).addEventListener('change',()=>{render();salvarConfig()}));
+['codigo','nome','cargo','email','tel'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{lista[0]=atual();render()}));
+
+// link do cliente absoluto
+document.getElementById('clienteLink').href=new URL('entregas.html',location.href).href;
+
+// ---- arranque ----
+sync('a ligar ao banco…');
+IGDB.getConfig().then(c=>{
+  aplicarCfg(c); lista[0]=atual();
+  return recarregar();
+}).catch(e=>{console.error(e);render();sync('erro de ligação ao banco',true)});
+</script>
+</body>
+</html>

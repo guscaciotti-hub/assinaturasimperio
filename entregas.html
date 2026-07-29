@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assinaturas de correio eletrónico — Império Global</title>
+<style>
+ body{margin:0;background:#F4F7FA;color:#2B2F36;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55}
+ .w{max-width:880px;margin:0 auto;padding:40px 24px 80px}
+ header{border-bottom:3px solid #0072CE;padding-bottom:18px;margin-bottom:28px}
+ header h1{margin:0 0 4px;font-size:21px;color:#013F80}
+ header p{margin:0;color:#79828D;font-size:14px}
+ .i{background:#fff;border:1px solid #E1E7EC;border-radius:10px;padding:22px 26px;margin-bottom:34px}
+ .i h3{margin:0 0 12px;font-size:14px;letter-spacing:1px;text-transform:uppercase;color:#0072CE}
+ .i ol{margin:0;padding-left:20px} .i li{margin-bottom:9px}
+ .i h4{margin:18px 0 6px;font-size:14px;color:#013F80}
+ .n{margin-top:16px;padding:12px 14px;background:#EEF3F8;border-left:3px solid #0072CE;font-size:13.5px;color:#2B2F36}
+ .p{margin-bottom:38px}
+ .p h2{font-size:15px;color:#013F80;margin:0 0 10px;padding-bottom:7px;border-bottom:1px solid #E1E7EC}
+ .cx{background:#fff;border:1px solid #E1E7EC;border-radius:10px;padding:20px;display:inline-block;max-width:100%;overflow:auto}
+ button{display:block;margin-top:12px;background:#013F80;color:#fff;border:0;border-radius:6px;padding:11px 20px;font:inherit;font-size:14px;font-weight:bold;cursor:pointer}
+ button:hover{background:#0072CE}
+ .tb{border-collapse:collapse;width:100%;font-size:13px;background:#fff;border:1px solid #E1E7EC;border-radius:8px;overflow:hidden}
+ .tb th{background:#013F80;color:#fff;text-align:left;padding:9px 12px;font-size:12px}
+ .tb td{padding:9px 12px;border-top:1px solid #E1E7EC;color:#2B2F36}
+ footer{margin-top:50px;padding-top:18px;border-top:1px solid #E1E7EC;color:#9AA3AD;font-size:12px}
+ .estado{color:#79828D;font-size:14px;padding:20px 0}
+ .busca{width:100%;max-width:360px;padding:10px 12px;border:1px solid #CBD5E0;border-radius:6px;font:inherit;font-size:14px;margin:0 0 26px;box-sizing:border-box}
+</style>
+</head>
+<body>
+<div class="w">
+<header>
+ <h1>Assinaturas de correio eletrónico</h1>
+ <p>Império Global Telecomunicações · instruções de instalação</p>
+</header>
+
+<div class="i">
+ <h3>Como instalar</h3>
+ <ol>
+  <li>Localize o seu nome nesta página.</li>
+  <li>Clique em <strong>Copiar a minha assinatura</strong>.</li>
+  <li>Abra o Outlook e siga o caminho correspondente à sua versão (abaixo).</li>
+  <li>Cole no campo da assinatura com <strong>Ctrl + V</strong>.</li>
+  <li>Guarde as alterações.</li>
+ </ol>
+ <h4>Outlook na Web ou novo Outlook</h4>
+ <p style="margin:0">Definições (roda dentada) → Correio → Compor e responder → Assinatura de correio eletrónico.</p>
+ <h4>Outlook clássico para Windows</h4>
+ <p style="margin:0">Ficheiro → Opções → Correio → Assinaturas → Nova.</p>
+ <h4>Gmail</h4>
+ <p style="margin:0">Definições (roda dentada) → Ver todas as definições → separador <em>Geral</em> → Assinatura → Criar → colar no editor → <strong>Guardar alterações</strong>, no fundo da página.</p>
+ <div class="n"><strong>No Gmail:</strong> ao colar, o logótipo é carregado automaticamente para os servidores do Google. Aguarde que a imagem fique visível no editor antes de guardar. Confirme ainda, no mesmo ecrã, que a assinatura está seleccionada em <em>PARA NOVOS E-MAILS</em> e em <em>EM RESPOSTA/REENCAMINHAMENTO</em>.</div>
+ <div class="n"><strong>Importante:</strong> active a assinatura tanto para <em>mensagens novas</em> como para <em>respostas e reencaminhamentos</em>. Não altere tipos de letra, cores nem dimensões após colar — a assinatura já está normalizada segundo a identidade da empresa.</div>
+</div>
+
+<input id="busca" class="busca" type="search" placeholder="Procurar pelo meu nome…" oninput="filtrar()" style="display:none">
+<div id="blocos"><div class="estado" id="estado">A carregar assinaturas…</div></div>
+<div id="controlo"></div>
+
+<footer>Em caso de dúvida ou de alteração de dados, contacte o departamento responsável.<br>Produzido pela Evoluze Marketing.</footer>
+</div>
+
+<div id="clipHolder" style="position:fixed;left:-99999px;top:0;background:#fff"></div>
+
+<script src="assets/logo.js"></script>
+<script src="assets/supabase.js"></script>
+<script src="assets/sig-core.js"></script>
+<script src="assets/db.js"></script>
+<script>
+var esc=IGCore.esc;
+var CFG=null, PESSOAS=[];
+
+function cp(id,btn){
+  var el=document.getElementById(id),r=document.createRange();
+  r.selectNodeContents(el);
+  var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+  try{document.execCommand('copy')}catch(e){}
+  s.removeAllRanges();
+  var t=btn.textContent;btn.textContent='Assinatura copiada';
+  setTimeout(function(){btn.textContent=t},1800);
+}
+
+function render(lista){
+  var wrap=document.getElementById('blocos');
+  if(!lista.length){
+    wrap.innerHTML='<div class="estado">Nenhuma assinatura corresponde à procura.</div>';
+    return;
+  }
+  wrap.innerHTML=lista.map(function(p,i){
+    return '<section class="p">'+
+      '<h2>'+esc(p.nome)+'</h2>'+
+      '<div class="cx"><div id="a'+i+'">'+IGCore.montar(CFG,p)+'</div></div>'+
+      '<button onclick="cp(\'a'+i+'\',this)">Copiar a minha assinatura</button>'+
+    '</section>';
+  }).join('');
+}
+
+function renderControlo(){
+  var cm=PESSOAS.filter(function(p){return p.codigo});
+  var el=document.getElementById('controlo');
+  if(!cm.length){el.innerHTML='';return}
+  el.innerHTML='<section class="p"><h2>Controlo de entrega</h2>'+
+    '<table class="tb"><thead><tr><th>Código</th><th>Nome</th><th>Função</th><th>Endereço</th><th>Emissão</th></tr></thead><tbody>'+
+    cm.map(function(p){
+      return '<tr><td>'+esc(p.codigo)+'</td><td>'+esc(p.nome)+'</td><td>'+esc(p.cargo)+'</td><td>'+esc(p.email)+'</td><td>'+esc(p.data||'')+'</td></tr>';
+    }).join('')+
+    '</tbody></table></section>';
+}
+
+function filtrar(){
+  var q=document.getElementById('busca').value.trim().toLowerCase();
+  if(!q){render(PESSOAS);return}
+  render(PESSOAS.filter(function(p){
+    return (p.nome||'').toLowerCase().indexOf(q)>=0
+        || (p.email||'').toLowerCase().indexOf(q)>=0
+        || (p.codigo||'').toLowerCase().indexOf(q)>=0;
+  }));
+}
+
+Promise.all([IGDB.getConfig(), IGDB.list()]).then(function(res){
+  CFG=res[0]; PESSOAS=res[1];
+  if(!PESSOAS.length){
+    document.getElementById('estado').textContent='Ainda não há assinaturas publicadas.';
+    return;
+  }
+  if(PESSOAS.length>6) document.getElementById('busca').style.display='';
+  render(PESSOAS);
+  renderControlo();
+}).catch(function(e){
+  console.error(e);
+  document.getElementById('estado').textContent='Não foi possível carregar as assinaturas. Atualize a página.';
+});
+</script>
+</body>
+</html>

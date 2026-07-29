@@ -1,0 +1,13 @@
+[build]
+  publish = "."
+
+# Site estático (HTML + JS). Sem passo de build.
+[[redirects]]
+  from = "/cliente"
+  to = "/entregas.html"
+  status = 200
+
+[[redirects]]
+  from = "/gerador"
+  to = "/index.html"
+  status = 200
