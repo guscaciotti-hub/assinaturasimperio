@@ -42,7 +42,8 @@
       nome: r(15, 12), nomeLh: r(19), cargo: r(12, 10), cargoLh: r(15),
       corpo: r(12, 10), corpoLh: r(17), rod: r(9, 9), rodLh: r(13, 12),
       gap: r(20, 10), regua: r(3, 2), padV: r(16, 8), padH: r(20, 10),
-      g1: r(2, 1), g2: r(6, 3), rodTop: r(12, 6), rodGap: r(8, 4)
+      g1: r(2, 1), g2: r(6, 3), rodTop: r(12, 6), rodGap: r(8, 4),
+      textW: r(280)   // largura FIXA da coluna de texto (Soraia = 505px total). Igual p/ todas; texto longo quebra p/ baixo
     };
   }
 
@@ -78,11 +79,11 @@
 '<img src="' + LOGO + '" alt="Império Global — Excellence in Telecommunications" width="' + lw + '" style="display:block;border:0;outline:none;text-decoration:none;width:' + lw + 'px;height:auto;">\n' +
 '</td>\n' +
 '<td width="' + d.regua + '" bgcolor="' + SINAL + '" style="width:' + d.regua + 'px;min-width:' + d.regua + 'px;background-color:' + SINAL + ';font-size:0;line-height:0;">&nbsp;</td>\n' +
-'<td valign="middle" style="padding:0 0 0 ' + d.gap + 'px;">\n' +
-'<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">\n' +
-'<tr><td style="padding:0 0 ' + d.g1 + 'px;font-family:' + FF + ';font-size:' + d.nome + 'px;line-height:' + d.nomeLh + 'px;font-weight:bold;color:' + AZUL + ';">' + esc(p.nome) + '</td></tr>\n' +
-'<tr><td style="padding:0 0 ' + d.g2 + 'px;font-family:' + FF + ';font-size:' + d.cargo + 'px;line-height:' + d.cargoLh + 'px;font-weight:bold;color:' + SINAL + ';">' + esc(p.cargo) + '</td></tr>\n' +
-'<tr><td style="font-family:' + FF + ';font-size:' + d.corpo + 'px;line-height:' + d.corpoLh + 'px;color:' + CORPO + ';">\n' +
+'<td valign="middle" width="' + d.textW + '" style="width:' + d.textW + 'px;max-width:' + d.textW + 'px;padding:0 0 0 ' + d.gap + 'px;">\n' +
+'<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="' + d.textW + '" style="border-collapse:collapse;width:' + d.textW + 'px;table-layout:fixed;">\n' +
+'<tr><td style="padding:0 0 ' + d.g1 + 'px;font-family:' + FF + ';font-size:' + d.nome + 'px;line-height:' + d.nomeLh + 'px;font-weight:bold;color:' + AZUL + ';word-break:break-word;overflow-wrap:break-word;">' + esc(p.nome) + '</td></tr>\n' +
+'<tr><td style="padding:0 0 ' + d.g2 + 'px;font-family:' + FF + ';font-size:' + d.cargo + 'px;line-height:' + d.cargoLh + 'px;font-weight:bold;color:' + SINAL + ';word-break:break-word;overflow-wrap:break-word;">' + esc(p.cargo) + '</td></tr>\n' +
+'<tr><td style="font-family:' + FF + ';font-size:' + d.corpo + 'px;line-height:' + d.corpoLh + 'px;color:' + CORPO + ';word-break:break-word;overflow-wrap:break-word;">\n' +
 esc(emp) + '<br>\n' +
 '<a href="mailto:' + esc(p.email) + '" style="color:' + CORPO + ';text-decoration:none;">' + esc(p.email) + '</a>' + (tel ? ' &middot; <a href="' + telHref + '" style="color:' + CORPO + ';text-decoration:none;">' + tel + '</a>' : '') + '\n' +
 '</td></tr>\n' +
@@ -101,7 +102,7 @@ esc(emp) + '<br>\n' +
   return conteudo ? '<tr><td colspan="3" style="padding:' + d.rodTop + 'px 0 0;">\n' +
 '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;width:100%;">\n' +
 '<tr><td height="1" bgcolor="#E1E7EC" style="height:1px;line-height:1px;font-size:0;background-color:#E1E7EC;">&nbsp;</td></tr>\n' +
-'<tr><td style="padding:' + d.rodGap + 'px 0 0;font-family:' + FF + ';font-size:' + d.rod + 'px;line-height:' + d.rodLh + 'px;color:#9AA3AD;">' + conteudo + '</td></tr>\n' +
+'<tr><td style="padding:' + d.rodGap + 'px 0 0;font-family:' + FF + ';font-size:' + d.rod + 'px;line-height:' + d.rodLh + 'px;color:#9AA3AD;word-break:break-word;overflow-wrap:break-word;">' + conteudo + '</td></tr>\n' +
 '</table>\n' +
 '</td></tr>' : '';
 })() +
