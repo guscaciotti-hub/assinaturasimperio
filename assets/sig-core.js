@@ -39,23 +39,24 @@
     var e = fatorEscala(cfg) / 100;
     var r = function (b, min) { return Math.max(min || 1, Math.round(b * e)); };
     return {
-      nome: r(15, 12), nomeLh: r(19), cargo: r(12, 10), cargoLh: r(15),
+      nome: r(18, 13), nomeLh: r(23), cargo: r(14, 11), cargoLh: r(18),
       corpo: r(12, 10), corpoLh: r(17), rod: r(9, 9), rodLh: r(13, 12),
       gap: r(20, 10), regua: r(3, 2), padV: r(16, 8), padH: r(20, 10),
-      g1: r(2, 1), g2: r(6, 3), rodTop: r(12, 6), rodGap: r(8, 4)
+      g1: r(3, 1), g2: r(7, 3), rodTop: r(12, 6), rodGap: r(8, 4)
     };
   }
 
   function linhasRodape(cfg) {
     if (!cfg.usaRodape) return null;
-    var l1 = [cfg.mor1, cfg.mor2].filter(Boolean).join(' · ');
-    var l2 = [
-      cfg.telGeral ? 'Telf. ' + cfg.telGeral : '',
+    // rodapé: link do site · NIF · Alvará · telefone (morada retirada)
+    var site = String(cfg.site || '').replace(/^https?:\/\//, '');
+    var linha = [
+      site || '',
       cfg.nif ? 'NIF/Matrícula ' + cfg.nif : '',
-      cfg.alvara ? 'Alvará n.º ' + cfg.alvara : ''
+      cfg.alvara ? 'Alvará n.º ' + cfg.alvara : '',
+      cfg.telGeral ? 'Telf. ' + cfg.telGeral : ''
     ].filter(Boolean).join(' · ');
-    var r = [l1, l2].filter(Boolean);
-    return r.length ? r : null;
+    return linha ? [linha] : null;
   }
 
   function moldar(cfg, interno) {
@@ -83,18 +84,24 @@
 '<tr><td style="padding:0 0 ' + d.g2 + 'px;font-family:' + FF + ';font-size:' + d.cargo + 'px;line-height:' + d.cargoLh + 'px;font-weight:bold;color:' + SINAL + ';">' + esc(p.cargo) + '</td></tr>\n' +
 '<tr><td style="font-family:' + FF + ';font-size:' + d.corpo + 'px;line-height:' + d.corpoLh + 'px;color:' + CORPO + ';">\n' +
 esc(emp) + '<br>\n' +
-'<a href="mailto:' + esc(p.email) + '" style="color:' + CORPO + ';text-decoration:none;">' + esc(p.email) + '</a>' + (tel ? ' &middot; <a href="' + telHref + '" style="color:' + CORPO + ';text-decoration:none;">' + tel + '</a>' : '') + '<br>\n' +
-'<a href="https://' + site + '" style="color:' + CORPO + ';text-decoration:none;">' + site + '</a>\n' +
+'<a href="mailto:' + esc(p.email) + '" style="color:' + CORPO + ';text-decoration:none;">' + esc(p.email) + '</a>' + (tel ? ' &middot; <a href="' + telHref + '" style="color:' + CORPO + ';text-decoration:none;">' + tel + '</a>' : '') + '\n' +
 '</td></tr>\n' +
 '</table>\n' +
 '</td>\n' +
 '</tr>\n' +
 (function () {
-  var r = linhasRodape(cfg);
-  return r ? '<tr><td colspan="3" style="padding:' + d.rodTop + 'px 0 0;">\n' +
+  if (!cfg.usaRodape) return '';
+  var inst = [
+    cfg.nif ? 'NIF/Matrícula ' + esc(cfg.nif) : '',
+    cfg.alvara ? 'Alvará n.º ' + esc(cfg.alvara) : '',
+    cfg.telGeral ? 'Telf. ' + esc(cfg.telGeral) : ''
+  ].filter(Boolean).join(' &middot; ');
+  var siteFoot = site ? '<a href="https://' + site + '" style="color:#9AA3AD;text-decoration:none;">' + esc(site) + '</a>' : '';
+  var conteudo = [siteFoot, inst].filter(Boolean).join(' &middot; ');
+  return conteudo ? '<tr><td colspan="3" style="padding:' + d.rodTop + 'px 0 0;">\n' +
 '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;width:100%;">\n' +
 '<tr><td height="1" bgcolor="#E1E7EC" style="height:1px;line-height:1px;font-size:0;background-color:#E1E7EC;">&nbsp;</td></tr>\n' +
-'<tr><td style="padding:' + d.rodGap + 'px 0 0;font-family:' + FF + ';font-size:' + d.rod + 'px;line-height:' + d.rodLh + 'px;color:#9AA3AD;">' + r.map(esc).join('<br>') + '</td></tr>\n' +
+'<tr><td style="padding:' + d.rodGap + 'px 0 0;font-family:' + FF + ';font-size:' + d.rod + 'px;line-height:' + d.rodLh + 'px;color:#9AA3AD;">' + conteudo + '</td></tr>\n' +
 '</table>\n' +
 '</td></tr>' : '';
 })() +
