@@ -26,6 +26,9 @@
  footer{margin-top:50px;padding-top:18px;border-top:1px solid #E1E7EC;color:#9AA3AD;font-size:12px}
  .estado{color:#79828D;font-size:14px;padding:20px 0}
  .busca{width:100%;max-width:360px;padding:10px 12px;border:1px solid #CBD5E0;border-radius:6px;font:inherit;font-size:14px;margin:0 0 26px;box-sizing:border-box}
+ .acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+ .lk{background:#EEF3F8;color:#013F80;border:1px solid #CBD5E0}
+ .lk:hover{background:#DFE9F3}
 </style>
 </head>
 <body>
@@ -70,6 +73,12 @@
 <script>
 var esc=IGCore.esc;
 var CFG=null, PESSOAS=[];
+// alvo de um link individual: ?a=IG-001 (código) ou ?a=email
+var ALVO=(new URLSearchParams(location.search).get('a')||'').trim().toLowerCase();
+var MASTER=!ALVO;
+
+function baseURL(){return location.origin+location.pathname}
+function linkInd(cod){return baseURL()+'?a='+encodeURIComponent(cod)}
 
 function cp(id,btn){
   var el=document.getElementById(id),r=document.createRange();
@@ -81,6 +90,14 @@ function cp(id,btn){
   setTimeout(function(){btn.textContent=t},1800);
 }
 
+function copiarLink(cod,btn){
+  var url=linkInd(cod), t=btn.textContent;
+  function ok(){btn.textContent='Link copiado ✓';setTimeout(function(){btn.textContent=t},1800)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(ok).catch(function(){prompt('Copie o link individual:',url)});
+  }else{prompt('Copie o link individual:',url)}
+}
+
 function render(lista){
   var wrap=document.getElementById('blocos');
   if(!lista.length){
@@ -88,10 +105,15 @@ function render(lista){
     return;
   }
   wrap.innerHTML=lista.map(function(p,i){
+    var lk=(MASTER&&p.codigo)
+      ? '<button class="lk" onclick="copiarLink(\''+esc(p.codigo)+'\',this)">Copiar link individual</button>'
+      : '';
     return '<section class="p">'+
       '<h2>'+esc(p.nome)+'</h2>'+
       '<div class="cx"><div id="a'+i+'">'+IGCore.montar(CFG,p)+'</div></div>'+
-      '<button onclick="cp(\'a'+i+'\',this)">Copiar a minha assinatura</button>'+
+      '<div class="acts">'+
+        '<button onclick="cp(\'a'+i+'\',this)">Copiar a minha assinatura</button>'+lk+
+      '</div>'+
     '</section>';
   }).join('');
 }
@@ -120,6 +142,24 @@ function filtrar(){
 
 Promise.all([IGDB.getConfig(), IGDB.list()]).then(function(res){
   CFG=res[0]; PESSOAS=res[1];
+
+  // ---- modo individual: mostra só a assinatura pedida no link ----
+  if(ALVO){
+    var alvo=PESSOAS.filter(function(p){
+      return (String(p.codigo||'').toLowerCase()===ALVO)
+          || (String(p.email||'').toLowerCase()===ALVO);
+    });
+    if(!alvo.length){
+      document.getElementById('estado').textContent='Assinatura não encontrada. Confirme o link que recebeu.';
+      return;
+    }
+    document.querySelector('header h1').textContent='A sua assinatura de e-mail';
+    document.querySelector('header p').textContent='Império Global Telecomunicações · '+alvo[0].nome;
+    render(alvo);
+    return;
+  }
+
+  // ---- modo master: todas as assinaturas + link individual de cada ----
   if(!PESSOAS.length){
     document.getElementById('estado').textContent='Ainda não há assinaturas publicadas.';
     return;

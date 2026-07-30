@@ -70,31 +70,6 @@
 
 <div class="wrap">
   <div class="form">
-    <h2>Fixos</h2>
-    <div class="row">
-      <div><label>Largura do logo (cm)</label><input id="logoCM" value="4,5"></div>
-      <div><label>Site</label><input id="site" value="imperioglobal.eu"></div>
-    </div>
-    <div class="presets"><button class="mini" onclick="setCM(3.5)">3,5</button><button class="mini" onclick="setCM(4)">4,0</button><button class="mini" onclick="setCM(4.5)">4,5</button><button class="mini" onclick="setCM(5)">5,0</button><button class="mini" onclick="setCM(5.5)">5,5</button></div>
-    <div class="hint" id="dimHint"></div>
-    <label>Escala do texto (%)</label><input id="escala" value="92">
-    <div class="presets" style="margin-top:-6px"><button class="mini" onclick="setEsc(85)">85</button><button class="mini" onclick="setEsc(92)">92</button><button class="mini" onclick="setEsc(100)">100</button><button class="mini" onclick="setEsc(110)">110</button></div>
-    <label>Linha da empresa</label>
-    <input id="empresa" value="Império Global Telecomunicações">
-
-    <hr>
-    <h2>Rodapé institucional</h2>
-    <div class="check"><input type="checkbox" id="usaRodape" checked><label for="usaRodape">Incluir rodapé legal</label></div>
-    <div class="check"><input type="checkbox" id="usaMoldura" checked><label for="usaMoldura">Moldura arredondada</label></div>
-    <label>Morada</label><input id="mor1" value="Rua da Floresta, 1521, Azabucho">
-    <label>Código postal e localidade</label><input id="mor2" value="2410-021 Leiria, Portugal">
-    <label>Telefone geral</label><input id="telGeral" value="+351 244 811 076">
-    <div class="row">
-      <div><label>NIF / Matrícula</label><input id="nif" value="514 370 084"></div>
-      <div><label>Alvará n.º</label><input id="alvara" value="146039"></div>
-    </div>
-
-    <hr>
     <h2>Colaborador</h2>
     <div class="row">
       <div><label>Código</label><input id="codigo" placeholder="automático"></div>
@@ -103,27 +78,57 @@
     <label>Cargo / Função</label><input id="cargo" value="Cargo / Função">
     <label>E-mail</label><input id="email" value="nome@imperioglobal.eu">
     <label>Telefone</label><input id="tel" value="+351 000 000 000">
+    <button id="btnSalvar" style="width:100%;padding:12px;font-size:14px" onclick="guardarAtual()">Salvar assinatura</button>
+    <div class="hint" id="regHint" style="margin-top:10px"></div>
 
     <hr>
-    <h2>Registo de entregas</h2>
+    <h2>Assinaturas salvas</h2>
     <div class="bar2">
-      <button class="ghost sm" onclick="guardarAtual()">Guardar no registo</button>
       <button class="ghost sm" onclick="verRegisto()">Ver todas</button>
       <button class="ghost sm" onclick="recarregar()">Atualizar</button>
     </div>
     <div id="listaReg" class="reg"></div>
-    <div class="bar2">
-      <button class="ghost sm" onclick="exportarRegisto()">Exportar .json (backup)</button>
-      <button class="ghost sm" onclick="document.getElementById('impFile').click()">Importar .json</button>
-      <input type="file" id="impFile" accept="application/json" style="display:none" onchange="importarRegisto(this)">
-    </div>
-    <div class="hint" id="regHint"></div>
+    <div class="hint">Passe o rato sobre uma linha: <b>abrir</b> carrega a pessoa · <b>link</b> copia o link individual do cliente · <b>×</b> remove.</div>
 
     <hr>
-    <h2>Lote (colar da planilha)</h2>
-    <div class="hint">Copie as colunas Nome · Cargo · E-mail · Telefone do Excel e cole aqui. Aceita tabulação ou ponto e vírgula.</div>
-    <textarea id="lote" placeholder="Soraia Ferreira&#9;Assistente de Direção&#9;soraia.ferreira@imperioglobal.eu&#9;+351 000 000 000"></textarea>
-    <button class="ghost" onclick="gerarLote()">Gerar todas</button>
+    <details>
+      <summary>Configurações fixas (logo, rodapé, morada) — normalmente não mexe</summary>
+      <div style="margin-top:16px">
+        <div class="row">
+          <div><label>Largura do logo (cm)</label><input id="logoCM" value="4,5"></div>
+          <div><label>Site</label><input id="site" value="imperioglobal.eu"></div>
+        </div>
+        <div class="presets"><button class="mini" onclick="setCM(3.5)">3,5</button><button class="mini" onclick="setCM(4)">4,0</button><button class="mini" onclick="setCM(4.5)">4,5</button><button class="mini" onclick="setCM(5)">5,0</button><button class="mini" onclick="setCM(5.5)">5,5</button></div>
+        <div class="hint" id="dimHint"></div>
+        <label>Escala do texto (%)</label><input id="escala" value="92">
+        <div class="presets" style="margin-top:-6px"><button class="mini" onclick="setEsc(85)">85</button><button class="mini" onclick="setEsc(92)">92</button><button class="mini" onclick="setEsc(100)">100</button><button class="mini" onclick="setEsc(110)">110</button></div>
+        <label>Linha da empresa</label>
+        <input id="empresa" value="Império Global Telecomunicações">
+        <div class="check" style="margin-top:6px"><input type="checkbox" id="usaRodape" checked><label for="usaRodape">Incluir rodapé legal</label></div>
+        <div class="check"><input type="checkbox" id="usaMoldura" checked><label for="usaMoldura">Moldura arredondada</label></div>
+        <label>Morada</label><input id="mor1" value="Rua da Floresta, 1521, Azabucho">
+        <label>Código postal e localidade</label><input id="mor2" value="2410-021 Leiria, Portugal">
+        <label>Telefone geral</label><input id="telGeral" value="+351 244 811 076">
+        <div class="row">
+          <div><label>NIF / Matrícula</label><input id="nif" value="514 370 084"></div>
+          <div><label>Alvará n.º</label><input id="alvara" value="146039"></div>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Importar em lote / cópia de segurança</summary>
+      <div style="margin-top:16px">
+        <div class="hint">Copie as colunas Nome · Cargo · E-mail · Telefone do Excel e cole aqui. Aceita tabulação ou ponto e vírgula.</div>
+        <textarea id="lote" placeholder="Soraia Ferreira&#9;Assistente de Direção&#9;soraia.ferreira@imperioglobal.eu&#9;+351 000 000 000"></textarea>
+        <button class="ghost" onclick="gerarLote()">Gerar todas</button>
+        <div class="bar2" style="margin-top:12px">
+          <button class="ghost sm" onclick="exportarRegisto()">Exportar .json (backup)</button>
+          <button class="ghost sm" onclick="document.getElementById('impFile').click()">Importar .json</button>
+          <input type="file" id="impFile" accept="application/json" style="display:none" onchange="importarRegisto(this)">
+        </div>
+      </div>
+    </details>
   </div>
 
   <div class="out">
@@ -134,7 +139,7 @@
       <span class="hint" style="margin:0">Este é o link fixo que o cliente usa para ver e copiar as assinaturas — atualiza automaticamente.</span>
     </div>
     <div class="bar">
-      <button onclick="guardarLista()">Guardar todas em entregas</button>
+      <button onclick="guardarLista()">Salvar todas</button>
       <button class="ghost" onclick="copiar('sig0')">Copiar a primeira</button>
       <button class="ghost" onclick="window.open('entregas.html','_blank')">Abrir página do cliente</button>
     </div>
@@ -394,8 +399,10 @@ function renderRegisto(){
     const d=document.createElement('div'); d.className='ri';
     d.innerHTML=`<span class="cod">${esc(e.codigo)}</span><span class="nm">${esc(e.nome)}</span><span class="dt">${esc(e.data||'')}</span>`;
     const ab=document.createElement('i'); ab.textContent='abrir'; ab.onclick=()=>carregarEntrada(i);
+    const lk=document.createElement('i'); lk.textContent='link'; lk.title='Copiar link individual do cliente';
+    lk.onclick=()=>copiarLinkInd(e.codigo);
     const rm=document.createElement('i'); rm.textContent='×'; rm.onclick=()=>removerEntrada(i);
-    d.appendChild(ab); d.appendChild(rm); c.appendChild(d);
+    d.appendChild(ab); d.appendChild(lk); d.appendChild(rm); c.appendChild(d);
   });
   document.getElementById('regHint').textContent=
     registo.length?`${registo.length} assinatura(s) no registo · próximo código ${proxCodigo()}`
@@ -447,7 +454,7 @@ function render(){
     const cod=p.codigo||codigoDe(p);
     d.innerHTML=`<p class="who">${cod?`<span class="bd">${esc(cod)}</span> `:''}${esc(p.nome)}</p><div class="stage"><div id="sig${i}">${montar(p)}</div></div>`;
     const sv=document.createElement('button');
-    sv.className=cod?'ghost':''; sv.textContent=cod?'Atualizar em entregas':'Guardar em entregas';
+    sv.className=cod?'ghost':''; sv.textContent=cod?'Atualizar':'Salvar assinatura';
     sv.onclick=()=>guardarUma(i); d.appendChild(sv);
     const b=document.createElement('button'); b.className='ghost'; b.textContent='Copiar';
     b.style.marginLeft='8px'; b.onclick=()=>copiar('sig'+i); d.appendChild(b);
@@ -455,6 +462,10 @@ function render(){
     m.style.marginLeft='8px'; m.onclick=()=>copiarImagem(i); d.appendChild(m);
     const g=document.createElement('button'); g.className='ghost'; g.textContent='PNG';
     g.style.marginLeft='8px'; g.onclick=()=>baixarPNG(i); d.appendChild(g);
+    if(cod){
+      const lk=document.createElement('button'); lk.className='ghost'; lk.textContent='Link individual';
+      lk.style.marginLeft='8px'; lk.onclick=()=>copiarLinkInd(cod); d.appendChild(lk);
+    }
     palco.appendChild(d);
   });
   atualizarHint();
@@ -482,10 +493,22 @@ function copiar(id){
 
 function copiarLink(){
   const url=document.getElementById('clienteLink').href;
-  navigator.clipboard.writeText(url).then(()=>{
-    const t=document.getElementById('toast'); t.textContent='Link do cliente copiado'; t.classList.add('on');
-    setTimeout(()=>{t.classList.remove('on');t.textContent='Assinatura copiada'},1600);
-  }).catch(()=>prompt('Copie o link:',url));
+  navigator.clipboard.writeText(url).then(()=>toast('Link do cliente copiado'))
+    .catch(()=>prompt('Copie o link:',url));
+}
+
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on');
+  setTimeout(()=>{t.classList.remove('on');t.textContent='Assinatura copiada'},1600);
+}
+
+// link individual do cliente (mostra só esta pessoa): entregas.html?a=IG-001
+function linkCliente(cod){return new URL('entregas.html?a='+encodeURIComponent(cod),location.href).href}
+function copiarLinkInd(cod){
+  if(!cod){alert('Salve a assinatura primeiro para gerar o link individual.');return}
+  const url=linkCliente(cod);
+  navigator.clipboard.writeText(url).then(()=>toast('Link individual copiado'))
+    .catch(()=>prompt('Copie o link individual:',url));
 }
 
 // ---- ligações de eventos ----
