@@ -68,14 +68,14 @@
   }
 
   function montar(cfg, p) {
-    var d = dim(cfg), lw = cmParaPx(larguraCM(cfg));
+    var d = dim(cfg), lw = cmParaPx(larguraCM(cfg)), lh = Math.round(lw / RATIO);
     var site = String(cfg.site || '').replace(/^https?:\/\//, '');
     var emp = cfg.empresa || '';
     var tel = esc(p.tel), telHref = 'tel:' + String(p.tel || '').replace(/[^\d+]/g, '');
     return moldar(cfg, '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background-color:#ffffff;">\n' +
 '<tr>\n' +
 '<td valign="middle" style="padding:0 ' + d.gap + 'px 0 0;">\n' +
-'<img src="' + LOGO + '" alt="Império Global — Excellence in Telecommunications" width="' + lw + '" style="display:block;border:0;outline:none;text-decoration:none;width:' + lw + 'px;height:auto;">\n' +
+'<img src="' + LOGO + '" alt="Império Global — Excellence in Telecommunications" width="' + lw + '" height="' + lh + '" style="display:block;border:0;outline:none;text-decoration:none;width:' + lw + 'px;height:' + lh + 'px;">\n' +
 '</td>\n' +
 '<td width="' + d.regua + '" bgcolor="' + SINAL + '" style="width:' + d.regua + 'px;min-width:' + d.regua + 'px;background-color:' + SINAL + ';font-size:0;line-height:0;">&nbsp;</td>\n' +
 '<td valign="middle" style="padding:0 0 0 ' + d.gap + 'px;">\n' +
