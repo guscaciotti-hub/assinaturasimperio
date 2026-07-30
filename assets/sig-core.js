@@ -82,10 +82,7 @@
 '<td valign="middle" width="' + d.textW + '" style="width:' + d.textW + 'px;max-width:' + d.textW + 'px;padding:0 0 0 ' + d.gap + 'px;">\n' +
 '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="' + d.textW + '" style="border-collapse:collapse;width:' + d.textW + 'px;table-layout:fixed;">\n' +
 '<tr><td style="padding:0 0 ' + d.g1 + 'px;font-family:' + FF + ';font-size:' + d.nome + 'px;line-height:' + d.nomeLh + 'px;font-weight:bold;color:' + AZUL + ';word-break:break-word;overflow-wrap:break-word;">' + esc(p.nome) + '</td></tr>\n' +
-'<tr><td style="padding:0 0 ' + d.g2 + 'px;font-family:' + FF + ';font-size:' + d.cargo + 'px;line-height:' + d.cargoLh + 'px;font-weight:bold;color:' + SINAL + ';word-break:break-word;overflow-wrap:break-word;">' + esc(p.cargo) + '</td></tr>\n' +
-'<tr><td style="font-family:' + FF + ';font-size:' + d.corpo + 'px;line-height:' + d.corpoLh + 'px;color:' + CORPO + ';word-break:break-word;overflow-wrap:break-word;">\n' +
-'<a href="mailto:' + esc(p.email) + '" style="color:' + CORPO + ';text-decoration:none;">' + esc(p.email) + '</a>\n' +
-'</td></tr>\n' +
+'<tr><td style="font-family:' + FF + ';font-size:' + d.cargo + 'px;line-height:' + d.cargoLh + 'px;font-weight:bold;color:' + SINAL + ';word-break:break-word;overflow-wrap:break-word;">' + esc(p.cargo) + '</td></tr>\n' +
 '</table>\n' +
 '</td>\n' +
 '</tr>\n' +
