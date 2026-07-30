@@ -133,10 +133,11 @@
 
   <div class="out">
     <div class="link">
-      <b>Link do cliente</b>
-      <a id="clienteLink" href="entregas.html" target="_blank">entregas.html</a>
+      <b>Link da cliente (vê todas)</b>
+      <a id="clienteLink" href="javascript:void(0)" target="_blank">—</a>
       <button class="sm" onclick="copiarLink()">Copiar link</button>
-      <span class="hint" style="margin:0">Este é o link fixo que o cliente usa para ver e copiar as assinaturas — atualiza automaticamente.</span>
+      <button class="sm ghost" onclick="definirChave()">Chave</button>
+      <span class="hint" style="margin:0;width:100%">Só quem tiver este link vê todas as assinaturas. Cada colaborador recebe um <b>link individual</b> (botão em cada assinatura) que mostra apenas a dele.</span>
     </div>
     <div class="bar">
       <button onclick="guardarLista()">Salvar todas</button>
@@ -319,8 +320,10 @@ function salvarConfig(){
 
 function recarregar(){
   sync('a carregar…');
+  atualizarLinkCliente();
   return IGDB.list().then(rows=>{
-    registo=rows; renderRegisto(); render(); sync('sincronizado');
+    registo=rows; renderRegisto(); render();
+    sync(rows.length?'sincronizado':(IGDB.getKey()?'sem assinaturas (verifique a chave)':'defina a chave para carregar'));
   }).catch(e=>{console.error(e);sync('erro de ligação ao banco',true)});
 }
 
@@ -335,18 +338,21 @@ function codigoDe(p){
 
 function guardarPessoa(p,silencioso){
   if(!p.nome||p.nome==='Nome Apelido'){ if(!silencioso)alert('Preencha o nome antes de guardar.'); return Promise.resolve(null) }
+  if(!IGDB.getKey()){ if(!silencioso)alert('Defina a chave de escrita (botão "Chave") antes de salvar.'); return Promise.resolve(null) }
   sync('a guardar…');
   return IGDB.guardar(p).then(row=>{
     const i=registo.findIndex(e=>e.id===row.id);
     if(i>=0) registo[i]=row; else registo.push(row);
     registo.sort((a,b)=>String(a.codigo).localeCompare(String(b.codigo),'pt',{numeric:true}));
+    p.codigo=row.codigo; p.token=row.token;
     sync('guardado ✓');
-    return row.codigo;
+    return row;
   }).catch(e=>{
     console.error(e);
     const m=String(e.message||e);
     if(!silencioso){
-      if(m.indexOf('codigo_em_uso')>=0) alert('Esse código já pertence a outra pessoa.');
+      if(m.indexOf('chave_invalida')>=0) alert('Chave de escrita inválida. Clique em "Chave" e cole a chave correta.');
+      else if(m.indexOf('codigo_em_uso')>=0) alert('Esse código já pertence a outra pessoa.');
       else alert('Erro ao guardar no banco. Verifique a ligação.');
     }
     sync('erro ao guardar',true);
@@ -355,18 +361,18 @@ function guardarPessoa(p,silencioso){
 }
 
 function guardarAtual(){
-  guardarPessoa(atual()).then(cod=>{
-    if(cod){document.getElementById('codigo').value=cod;renderRegisto();render();}
+  guardarPessoa(atual()).then(row=>{
+    if(row){document.getElementById('codigo').value=row.codigo;renderRegisto();render();}
   });
 }
 function guardarUma(i){
-  guardarPessoa(lista[i]).then(cod=>{
-    if(cod){lista[i].codigo=cod;renderRegisto();render();}
+  guardarPessoa(lista[i]).then(row=>{
+    if(row){lista[i].codigo=row.codigo;lista[i].token=row.token;renderRegisto();render();}
   });
 }
 function guardarLista(){
   let n=0;
-  const passos=lista.map(p=>()=>guardarPessoa(p,true).then(c=>{if(c){p.codigo=c;n++}}));
+  const passos=lista.map(p=>()=>guardarPessoa(p,true).then(r=>{if(r){n++}}));
   passos.reduce((ch,f)=>ch.then(f),Promise.resolve()).then(()=>{
     renderRegisto(); render();
     const t=document.getElementById('toast');
@@ -400,7 +406,7 @@ function renderRegisto(){
     d.innerHTML=`<span class="cod">${esc(e.codigo)}</span><span class="nm">${esc(e.nome)}</span><span class="dt">${esc(e.data||'')}</span>`;
     const ab=document.createElement('i'); ab.textContent='abrir'; ab.onclick=()=>carregarEntrada(i);
     const lk=document.createElement('i'); lk.textContent='link'; lk.title='Copiar link individual do cliente';
-    lk.onclick=()=>copiarLinkInd(e.codigo);
+    lk.onclick=()=>copiarLinkInd(e.token);
     const rm=document.createElement('i'); rm.textContent='×'; rm.onclick=()=>removerEntrada(i);
     d.appendChild(ab); d.appendChild(lk); d.appendChild(rm); c.appendChild(d);
   });
@@ -462,9 +468,9 @@ function render(){
     m.style.marginLeft='8px'; m.onclick=()=>copiarImagem(i); d.appendChild(m);
     const g=document.createElement('button'); g.className='ghost'; g.textContent='PNG';
     g.style.marginLeft='8px'; g.onclick=()=>baixarPNG(i); d.appendChild(g);
-    if(cod){
+    if(p.token){
       const lk=document.createElement('button'); lk.className='ghost'; lk.textContent='Link individual';
-      lk.style.marginLeft='8px'; lk.onclick=()=>copiarLinkInd(cod); d.appendChild(lk);
+      lk.style.marginLeft='8px'; lk.onclick=()=>copiarLinkInd(p.token); d.appendChild(lk);
     }
     palco.appendChild(d);
   });
@@ -491,10 +497,12 @@ function copiar(id){
   setTimeout(()=>t.classList.remove('on'),1600);
 }
 
+let LINK_CLIENTE='';
+
 function copiarLink(){
-  const url=document.getElementById('clienteLink').href;
-  navigator.clipboard.writeText(url).then(()=>toast('Link do cliente copiado'))
-    .catch(()=>prompt('Copie o link:',url));
+  if(!LINK_CLIENTE){alert('Defina a chave de escrita (botão "Chave") para gerar o link da cliente.');return}
+  navigator.clipboard.writeText(LINK_CLIENTE).then(()=>toast('Link da cliente copiado'))
+    .catch(()=>prompt('Copie o link da cliente:',LINK_CLIENTE));
 }
 
 function toast(msg){
@@ -502,13 +510,34 @@ function toast(msg){
   setTimeout(()=>{t.classList.remove('on');t.textContent='Assinatura copiada'},1600);
 }
 
-// link individual do cliente (mostra só esta pessoa): entregas.html?a=IG-001
-function linkCliente(cod){return new URL('entregas.html?a='+encodeURIComponent(cod),location.href).href}
-function copiarLinkInd(cod){
-  if(!cod){alert('Salve a assinatura primeiro para gerar o link individual.');return}
-  const url=linkCliente(cod);
+// link individual (mostra só esta pessoa): entregas.html?t=TOKEN
+function linkInd(tok){return new URL('entregas.html?t='+encodeURIComponent(tok),location.href).href}
+function copiarLinkInd(tok){
+  if(!tok){alert('Salve a assinatura primeiro para gerar o link individual.');return}
+  const url=linkInd(tok);
   navigator.clipboard.writeText(url).then(()=>toast('Link individual copiado'))
     .catch(()=>prompt('Copie o link individual:',url));
+}
+
+// monta o link da cliente (?k=chave de leitura), obtido a partir da chave de escrita
+function atualizarLinkCliente(){
+  const a=document.getElementById('clienteLink');
+  if(!IGDB.getKey()){ LINK_CLIENTE=''; a.textContent='(defina a chave)'; a.removeAttribute('href'); return; }
+  IGDB.readKey().then(rk=>{
+    if(!rk){ LINK_CLIENTE=''; a.textContent='(chave inválida — clique em Chave)'; a.removeAttribute('href'); sync('chave inválida',true); return; }
+    LINK_CLIENTE=new URL('entregas.html?k='+encodeURIComponent(rk),location.href).href;
+    a.textContent=LINK_CLIENTE; a.href=LINK_CLIENTE;
+  }).catch(()=>{ a.textContent='(erro ao obter link)'; });
+}
+
+function definirChave(){
+  const temAtual=!!IGDB.getKey();
+  const k=prompt('Cole a CHAVE DE ESCRITA do gerador'+(temAtual?' (deixe vazio para manter a atual)':'')+':','');
+  if(k===null) return;
+  if(k.trim()==='' && temAtual) return;
+  IGDB.setKey(k.trim());
+  toast('Chave guardada');
+  recarregar();
 }
 
 // ---- ligações de eventos ----
@@ -516,11 +545,12 @@ CONFIG_IDS.forEach(id=>document.getElementById(id).addEventListener('input',()=>
 CHECK_IDS.forEach(id=>document.getElementById(id).addEventListener('change',()=>{render();salvarConfig()}));
 ['codigo','nome','cargo','email','tel'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{lista[0]=atual();render()}));
 
-// link do cliente absoluto
-document.getElementById('clienteLink').href=new URL('entregas.html',location.href).href;
-
 // ---- arranque ----
 sync('a ligar ao banco…');
+if(!IGDB.getKey()){
+  const k=prompt('Cole a CHAVE DE ESCRITA para usar o gerador (fornecida uma única vez):','');
+  if(k && k.trim()) IGDB.setKey(k.trim());
+}
 IGDB.getConfig().then(c=>{
   aplicarCfg(c); lista[0]=atual();
   return recarregar();

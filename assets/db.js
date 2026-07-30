@@ -1,7 +1,15 @@
 /* ==========================================================================
-   Camada de dados — Supabase. As entregas e a configuração ficam guardadas
-   no banco (não no navegador), por isso não se perdem entre computadores,
-   navegadores ou limpezas de cache.
+   Camada de dados — Supabase.
+
+   As assinaturas ficam trancadas no banco (RLS sem leitura direta). Todo o
+   acesso passa por funções controladas:
+     - ig_listar(chave)          -> todas as assinaturas (só com chave)
+     - ig_get_por_token(token)   -> uma assinatura (link individual, público)
+     - ig_guardar_pessoa(...,chave) / ig_remover(id, chave) -> exigem chave de escrita
+     - ig_chaves(chave_escrita)  -> devolve a chave de leitura (para o link da cliente)
+
+   A CHAVE DE ESCRITA fica guardada só no navegador de quem usa o gerador
+   (localStorage), nunca no código-fonte.
    ========================================================================== */
 (function (global) {
   'use strict';
@@ -13,6 +21,11 @@
     throw new Error('supabase-js não carregou');
   }
   var sb = global.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // -------- chave de escrita (guardada só neste navegador) --------
+  var WKEY = 'ig_write_key';
+  function getKey() { try { return (localStorage.getItem(WKEY) || '').trim(); } catch (e) { return ''; } }
+  function setKey(k) { try { localStorage.setItem(WKEY, (k || '').trim()); } catch (e) {} }
 
   // -------- mapeamento config (snake_case DB <-> camelCase app) --------
   function rowToCfg(r) {
@@ -41,7 +54,7 @@
     };
   }
 
-  // ordena por código de forma natural (IG-001, IG-002, ...), como no original
+  // ordena por código natural (IG-001, IG-002, ...)
   function ordenar(lista) {
     return (lista || []).slice().sort(function (a, b) {
       return String(a.codigo).localeCompare(String(b.codigo), 'pt', { numeric: true });
@@ -50,13 +63,12 @@
 
   var IGDB = {
     client: sb,
+    getKey: getKey,
+    setKey: setKey,
 
     getConfig: function () {
       return sb.from('ig_config').select('*').eq('id', 1).maybeSingle()
-        .then(function (res) {
-          if (res.error) throw res.error;
-          return rowToCfg(res.data);
-        });
+        .then(function (res) { if (res.error) throw res.error; return rowToCfg(res.data); });
     },
 
     saveConfig: function (cfg) {
@@ -64,12 +76,23 @@
         .then(function (res) { if (res.error) throw res.error; return true; });
     },
 
-    list: function () {
-      return sb.from('ig_assinaturas').select('*')
-        .then(function (res) {
-          if (res.error) throw res.error;
-          return ordenar(res.data);
-        });
+    // todas as assinaturas — exige chave de leitura ou escrita
+    list: function (key) {
+      var k = (key != null) ? String(key) : getKey();
+      return sb.rpc('ig_listar', { p_key: k })
+        .then(function (res) { if (res.error) throw res.error; return ordenar(res.data || []); });
+    },
+
+    // uma assinatura pelo token (link individual, público)
+    porToken: function (token) {
+      return sb.rpc('ig_get_por_token', { p_token: token })
+        .then(function (res) { if (res.error) throw res.error; var d = res.data || []; return d.length ? d[0] : null; });
+    },
+
+    // chave de leitura (para montar o link da cliente) — precisa da chave de escrita
+    readKey: function () {
+      return sb.rpc('ig_chaves', { p_key: getKey() })
+        .then(function (res) { if (res.error) throw res.error; var d = res.data || []; return d.length ? d[0].read_key : null; });
     },
 
     // upsert por e-mail com código sequencial atómico (RPC no banco)
@@ -79,7 +102,8 @@
         p_cargo: p.cargo || '',
         p_email: p.email || '',
         p_tel: p.tel || '',
-        p_codigo: (p.codigo || '').trim() || null
+        p_codigo: (p.codigo || '').trim() || null,
+        p_key: getKey()
       }).then(function (res) {
         if (res.error) throw res.error;
         return Array.isArray(res.data) ? res.data[0] : res.data;
@@ -87,12 +111,7 @@
     },
 
     remover: function (id) {
-      return sb.from('ig_assinaturas').delete().eq('id', id)
-        .then(function (res) { if (res.error) throw res.error; return true; });
-    },
-
-    removerPorCodigo: function (codigo) {
-      return sb.from('ig_assinaturas').delete().eq('codigo', codigo)
+      return sb.rpc('ig_remover', { p_id: id, p_key: getKey() })
         .then(function (res) { if (res.error) throw res.error; return true; });
     }
   };
