@@ -547,10 +547,11 @@ CHECK_IDS.forEach(id=>document.getElementById(id).addEventListener('change',()=>
 
 // ---- arranque ----
 sync('a ligar ao banco…');
-if(!IGDB.getKey()){
-  const k=prompt('Cole a CHAVE DE ESCRITA para usar o gerador (fornecida uma única vez):','');
-  if(k && k.trim()) IGDB.setKey(k.trim());
-}
+// acesso de edição via link (#k=... ou ?key=...): guarda no navegador e limpa a barra de endereço
+(function(){
+  const m=(location.hash+'&'+location.search).match(/[#?&]k(?:ey)?=([0-9a-zA-Z]+)/);
+  if(m && m[1]){ IGDB.setKey(m[1]); try{history.replaceState(null,'',location.pathname);}catch(e){} }
+})();
 IGDB.getConfig().then(c=>{
   aplicarCfg(c); lista[0]=atual();
   return recarregar();
