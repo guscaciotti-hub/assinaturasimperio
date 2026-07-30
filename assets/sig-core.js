@@ -39,11 +39,11 @@
     var e = fatorEscala(cfg) / 100;
     var r = function (b, min) { return Math.max(min || 1, Math.round(b * e)); };
     return {
-      nome: r(15, 12), nomeLh: r(19), cargo: r(12, 10), cargoLh: r(15),
+      nome: r(17, 13), nomeLh: r(22), cargo: r(13, 11), cargoLh: r(17),
       corpo: r(12, 10), corpoLh: r(17), rod: r(9, 9), rodLh: r(13, 12),
-      gap: r(20, 10), regua: r(3, 2), padV: r(16, 8), padH: r(20, 10),
-      g1: r(2, 1), g2: r(6, 3), rodTop: r(12, 6), rodGap: r(8, 4),
-      textW: r(280)   // largura FIXA da coluna de texto (Soraia = 505px total). Igual p/ todas; texto longo quebra p/ baixo
+      gap: r(22, 12), regua: r(3, 2), padV: r(18, 10), padH: r(22, 12),
+      g1: r(3, 1), g2: r(7, 3), rodTop: r(13, 7), rodGap: r(9, 5),
+      textW: r(292)   // largura FIXA da coluna de texto — IGUAL p/ todas; nome/função em destaque; texto longo quebra p/ baixo
     };
   }
 
