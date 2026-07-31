@@ -154,8 +154,8 @@
 
 <script src="assets/logo.js"></script>
 <script src="assets/supabase.js"></script>
-<script src="assets/sig-core.js?v=8"></script>
-<script src="assets/db.js?v=8"></script>
+<script src="assets/sig-core.js?v=9"></script>
+<script src="assets/db.js?v=9"></script>
 <script>
 const AZUL=IGCore.AZUL, SINAL=IGCore.SINAL, CORPO=IGCore.CORPO;
 const DPI=IGCore.DPI, CM=IGCore.CM, RATIO=IGCore.RATIO;
@@ -208,10 +208,9 @@ function desenhar(p,fator){
   const c=document.createElement('canvas'), ctx=c.getContext('2d');
   ctx.font=`bold ${d.nome}px Arial`; const w1=ctx.measureText(p.nome).width;
   ctx.font=`bold ${d.cargo}px Arial`; const w2=ctx.measureText(p.cargo).width;
-  ctx.font=`${d.corpo}px Arial`; const w3=p.tel?ctx.measureText(p.tel).width:0;
-  const tw=Math.ceil(Math.max(w1,w2,w3));
-  const th=d.nomeLh+d.g1+d.cargoLh+(p.tel?d.g2+d.corpoLh:0), topo=Math.max(lh,th);
-  const rod=linhasRodape();
+  const tw=Math.ceil(Math.max(w1,w2));
+  const th=d.nomeLh+d.g1+d.cargoLh, topo=Math.max(lh,th);
+  const rod=IGCore.linhasRodape(cfg(), p.tel);
   ctx.font=`${d.rod}px Arial`;
   const rw=rod?Math.ceil(Math.max(...rod.map(t=>ctx.measureText(t).width))):0;
   const rh=rod?d.rodTop+1+d.rodGap+rod.length*d.rodLh:0;
@@ -229,8 +228,7 @@ function desenhar(p,fator){
   }
   let x=lw+2*d.gap+d.regua, y=Math.round((topo-th)/2);
   ctx.fillStyle=AZUL;  ctx.font=`bold ${d.nome}px Arial`; ctx.fillText(p.nome,x,y+2);  y+=d.nomeLh+d.g1;
-  ctx.fillStyle=SINAL; ctx.font=`bold ${d.cargo}px Arial`; ctx.fillText(p.cargo,x,y+2); y+=d.cargoLh;
-  if(p.tel){ y+=d.g2; ctx.fillStyle=CORPO; ctx.font=`${d.corpo}px Arial`; ctx.fillText(p.tel,x,y+2); }
+  ctx.fillStyle=SINAL; ctx.font=`bold ${d.cargo}px Arial`; ctx.fillText(p.cargo,x,y+2);
   return c;
 }
 

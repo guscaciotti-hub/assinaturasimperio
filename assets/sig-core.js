@@ -47,15 +47,16 @@
     };
   }
 
-  function linhasRodape(cfg) {
+  function linhasRodape(cfg, telOverride) {
     if (!cfg.usaRodape) return null;
-    // rodapé: site · NIF · Alvará · telefone (morada retirada, a pedido da cliente)
+    // rodapé: site · NIF · Alvará · telefone (móvel da pessoa, ou o padrão da empresa)
     var site = String(cfg.site || '').replace(/^https?:\/\//, '');
+    var telf = (telOverride && String(telOverride).trim()) ? String(telOverride).trim() : cfg.telGeral;
     var linha = [
       site || '',
       cfg.nif ? 'NIF/Matrícula ' + cfg.nif : '',
       cfg.alvara ? 'Alvará n.º ' + cfg.alvara : '',
-      cfg.telGeral ? 'Telf. ' + cfg.telGeral : ''
+      telf ? 'Telf. ' + telf : ''
     ].filter(Boolean).join(' · ');
     return linha ? [linha] : null;
   }
@@ -83,16 +84,17 @@
 '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="' + d.textW + '" style="border-collapse:collapse;width:' + d.textW + 'px;table-layout:fixed;">\n' +
 '<tr><td style="padding:0 0 ' + d.g1 + 'px;font-family:' + FF + ';font-size:' + d.nome + 'px;line-height:' + d.nomeLh + 'px;font-weight:bold;color:' + AZUL + ';word-break:break-word;overflow-wrap:break-word;">' + esc(p.nome) + '</td></tr>\n' +
 '<tr><td style="font-family:' + FF + ';font-size:' + d.cargo + 'px;line-height:' + d.cargoLh + 'px;font-weight:bold;color:' + SINAL + ';word-break:break-word;overflow-wrap:break-word;">' + esc(p.cargo) + '</td></tr>\n' +
-(tel ? '<tr><td style="padding:' + d.g2 + 'px 0 0;font-family:' + FF + ';font-size:' + d.corpo + 'px;line-height:' + d.corpoLh + 'px;color:' + CORPO + ';word-break:break-word;overflow-wrap:break-word;"><a href="' + telHref + '" style="color:' + CORPO + ';text-decoration:none;">' + tel + '</a></td></tr>\n' : '') +
 '</table>\n' +
 '</td>\n' +
 '</tr>\n' +
 (function () {
   if (!cfg.usaRodape) return '';
+  // telefone do rodapé: o móvel da pessoa (se houver na coluna) OU o número padrão da empresa
+  var telRod = (p.tel && String(p.tel).trim()) ? String(p.tel).trim() : (cfg.telGeral || '');
   var inst = [
     cfg.nif ? 'NIF/Matrícula ' + esc(cfg.nif) : '',
     cfg.alvara ? 'Alvará n.º ' + esc(cfg.alvara) : '',
-    cfg.telGeral ? 'Telf. ' + esc(cfg.telGeral) : ''
+    telRod ? 'Telf. ' + esc(telRod) : ''
   ].filter(Boolean).join(' &middot; ');
   var siteFoot = site ? '<a href="https://' + site + '" style="color:#9AA3AD;text-decoration:none;">' + esc(site) + '</a>' : '';
   var conteudo = [siteFoot, inst].filter(Boolean).join(' &middot; ');
