@@ -113,6 +113,13 @@
     remover: function (id) {
       return sb.rpc('ig_remover', { p_id: id, p_key: getKey() })
         .then(function (res) { if (res.error) throw res.error; return true; });
+    },
+
+    // controlo de envio (master): marca/desmarca uma assinatura como enviada
+    marcarEnviado: function (codigo, enviado, key) {
+      var k = (key != null) ? String(key) : getKey();
+      return sb.rpc('ig_marcar_enviado', { p_codigo: codigo, p_enviado: !!enviado, p_key: k })
+        .then(function (res) { if (res.error) throw res.error; return true; });
     }
   };
 
