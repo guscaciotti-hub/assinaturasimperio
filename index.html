@@ -142,7 +142,7 @@
     <div class="bar">
       <button onclick="guardarLista()">Salvar todas</button>
       <button class="ghost" onclick="copiar('sig0')">Copiar a primeira</button>
-      <button class="ghost" onclick="window.open('entregas.html','_blank')">Abrir página do cliente</button>
+      <button class="ghost" onclick="abrirCliente()">Abrir página do cliente</button>
     </div>
     <div id="palco"></div>
     <details><summary>Ver código HTML</summary><pre id="code"></pre></details>
@@ -497,6 +497,14 @@ function copiarLink(){
   if(!LINK_CLIENTE){alert('Defina a chave de escrita (botão "Chave") para gerar o link da cliente.');return}
   navigator.clipboard.writeText(LINK_CLIENTE).then(()=>toast('Link da cliente copiado'))
     .catch(()=>prompt('Copie o link da cliente:',LINK_CLIENTE));
+}
+
+function abrirCliente(){
+  if(LINK_CLIENTE){ window.open(LINK_CLIENTE,'_blank'); return; }
+  IGDB.readKey().then(rk=>{
+    if(rk){ window.open(new URL('entregas.html?k='+encodeURIComponent(rk),location.href).href,'_blank'); }
+    else { alert('Defina a chave (botão "Chave") para abrir a página da cliente.'); }
+  }).catch(()=>alert('Não foi possível obter o link. Verifique a chave.'));
 }
 
 function toast(msg){
