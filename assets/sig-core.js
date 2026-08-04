@@ -47,15 +47,15 @@
     };
   }
 
-  function linhasRodape(cfg, telOverride) {
+  function linhasRodape(cfg, telOverride, semLegais) {
     if (!cfg.usaRodape) return null;
-    // rodapé: site · NIF · Alvará · telefone (móvel da pessoa, ou o padrão da empresa)
+    // rodapé: site · [NIF · Alvará] · telefone (móvel da pessoa, ou o padrão da empresa)
     var site = String(cfg.site || '').replace(/^https?:\/\//, '');
     var telf = (telOverride && String(telOverride).trim()) ? String(telOverride).trim() : cfg.telGeral;
     var linha = [
       site || '',
-      cfg.nif ? 'NIF/Matrícula ' + cfg.nif : '',
-      cfg.alvara ? 'Alvará n.º ' + cfg.alvara : '',
+      (!semLegais && cfg.nif) ? 'NIF/Matrícula ' + cfg.nif : '',
+      (!semLegais && cfg.alvara) ? 'Alvará n.º ' + cfg.alvara : '',
       telf ? 'Telf. ' + telf : ''
     ].filter(Boolean).join(' · ');
     return linha ? [linha] : null;
@@ -91,9 +91,10 @@
   if (!cfg.usaRodape) return '';
   // telefone do rodapé: o móvel da pessoa (se houver na coluna) OU o número padrão da empresa
   var telRod = (p.tel && String(p.tel).trim()) ? String(p.tel).trim() : (cfg.telGeral || '');
+  var semLegais = !!p.esconder_legais;   // por pessoa: esconder NIF/Alvará (fica só site + telefone)
   var inst = [
-    cfg.nif ? 'NIF/Matrícula ' + esc(cfg.nif) : '',
-    cfg.alvara ? 'Alvará n.º ' + esc(cfg.alvara) : '',
+    (!semLegais && cfg.nif) ? 'NIF/Matrícula ' + esc(cfg.nif) : '',
+    (!semLegais && cfg.alvara) ? 'Alvará n.º ' + esc(cfg.alvara) : '',
     telRod ? 'Telf. ' + esc(telRod) : ''
   ].filter(Boolean).join(' &middot; ');
   var siteFoot = site ? '<a href="https://' + site + '" style="color:#9AA3AD;text-decoration:none;">' + esc(site) + '</a>' : '';
