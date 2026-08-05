@@ -70,20 +70,20 @@
   }
 
   function montar(cfg, p) {
-    var d = dim(cfg), lw = cmParaPx(larguraCM(cfg));
+    var d = dim(cfg), lw = cmParaPx(larguraCM(cfg)), lh = Math.round(lw / RATIO);
     var site = String(cfg.site || '').replace(/^https?:\/\//, '');
     var emp = cfg.empresa || '';
     var tel = esc(p.tel), telHref = 'tel:' + String(p.tel || '').replace(/[^\d+]/g, '');
     return moldar(cfg, '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background-color:#ffffff;">\n' +
 '<tr>\n' +
 '<td valign="middle" style="padding:0 ' + d.gap + 'px 0 0;">\n' +
-'<img src="' + LOGO + '" alt="Império Global — Excellence in Telecommunications" width="' + lw + '" style="display:block;border:0;outline:none;text-decoration:none;width:' + lw + 'px;height:auto;">\n' +
+'<img src="' + LOGO + '" alt="Império Global — Excellence in Telecommunications" width="' + lw + '" height="' + lh + '" style="display:block;border:0;outline:none;text-decoration:none;width:' + lw + 'px;height:' + lh + 'px;">\n' +
 '</td>\n' +
 '<td width="' + d.regua + '" bgcolor="' + SINAL + '" style="width:' + d.regua + 'px;min-width:' + d.regua + 'px;background-color:' + SINAL + ';font-size:0;line-height:0;">&nbsp;</td>\n' +
 '<td valign="middle" width="' + d.textW + '" style="width:' + d.textW + 'px;max-width:' + d.textW + 'px;padding:0 0 0 ' + d.gap + 'px;">\n' +
 '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="' + d.textW + '" style="border-collapse:collapse;width:' + d.textW + 'px;table-layout:fixed;">\n' +
-'<tr><td style="padding:0 0 ' + d.g1 + 'px;font-family:' + FF + ';font-size:' + d.nome + 'px;line-height:' + d.nomeLh + 'px;font-weight:bold;color:' + AZUL + ';word-break:break-word;overflow-wrap:break-word;">' + esc(p.nome) + '</td></tr>\n' +
-'<tr><td style="font-family:' + FF + ';font-size:' + d.cargo + 'px;line-height:' + d.cargoLh + 'px;font-weight:bold;color:' + SINAL + ';word-break:break-word;overflow-wrap:break-word;">' + esc(p.cargo) + '</td></tr>\n' +
+'<tr><td style="padding:0 0 ' + d.g1 + 'px;font-family:' + FF + ';font-size:' + d.nome + 'px;line-height:' + d.nomeLh + 'px;font-weight:bold;color:' + AZUL + ';word-break:break-word;overflow-wrap:break-word;"><font color="' + AZUL + '" face="Arial">' + esc(p.nome) + '</font></td></tr>\n' +
+'<tr><td style="font-family:' + FF + ';font-size:' + d.cargo + 'px;line-height:' + d.cargoLh + 'px;font-weight:bold;color:' + SINAL + ';word-break:break-word;overflow-wrap:break-word;"><font color="' + SINAL + '" face="Arial">' + esc(p.cargo) + '</font></td></tr>\n' +
 '</table>\n' +
 '</td>\n' +
 '</tr>\n' +
@@ -109,8 +109,7 @@
   var conteudo = [siteFoot, inst].filter(Boolean).join(' &middot; ');
   return conteudo ? '<tr><td colspan="3" style="padding:' + d.rodTop + 'px 0 0;">\n' +
 '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;width:100%;">\n' +
-'<tr><td height="1" bgcolor="#E1E7EC" style="height:1px;line-height:1px;font-size:0;background-color:#E1E7EC;">&nbsp;</td></tr>\n' +
-'<tr><td style="padding:' + d.rodGap + 'px 0 0;font-family:' + FF + ';font-size:' + d.rod + 'px;line-height:' + d.rodLh + 'px;color:#9AA3AD;word-break:break-word;overflow-wrap:break-word;">' + conteudo + '</td></tr>\n' +
+'<tr><td style="border-top:1px solid #E1E7EC;padding:' + d.rodGap + 'px 0 0;font-family:' + FF + ';font-size:' + d.rod + 'px;line-height:' + d.rodLh + 'px;color:#9AA3AD;word-break:break-word;overflow-wrap:break-word;"><font color="#9AA3AD" face="Arial">' + conteudo + '</font></td></tr>\n' +
 '</table>\n' +
 '</td></tr>' : '';
 })() +
