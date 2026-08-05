@@ -47,17 +47,17 @@
     };
   }
 
-  function linhasRodape(cfg, telOverride, semLegais) {
+  function linhasRodape(cfg, telOverride, semLegais, fr) {
     if (!cfg.usaRodape) return null;
-    // rodapé: site · [NIF · Alvará] · telefone (móvel da pessoa, ou o padrão da empresa)
+    // rodapé: site · [NIF · Alvará] · telefone. Em FR: site · TVA <belga> · Tél.
     var site = String(cfg.site || '').replace(/^https?:\/\//, '');
-    var telf = (telOverride && String(telOverride).trim()) ? String(telOverride).trim() : cfg.telGeral;
-    var linha = [
-      site || '',
-      (!semLegais && cfg.nif) ? 'NIF/Matrícula ' + cfg.nif : '',
-      (!semLegais && cfg.alvara) ? 'Alvará n.º ' + cfg.alvara : '',
-      telf ? 'Telf. ' + telf : ''
-    ].filter(Boolean).join(' · ');
+    var telf = (telOverride && String(telOverride).trim()) ? String(telOverride).trim() : (fr ? '' : cfg.telGeral);
+    var telLbl = fr ? 'Tél. ' : 'Telf. ';
+    var beNum = cfg.nifBe || 'BE0771489302';
+    var linha = (fr
+      ? [ site || '', (!semLegais && beNum) ? 'TVA ' + beNum : '', telf ? telLbl + telf : '' ]
+      : [ site || '', (!semLegais && cfg.nif) ? 'NIF/Matrícula ' + cfg.nif : '', (!semLegais && cfg.alvara) ? 'Alvará n.º ' + cfg.alvara : '', telf ? telLbl + telf : '' ]
+    ).filter(Boolean).join(' · ');
     return linha ? [linha] : null;
   }
 
@@ -89,14 +89,22 @@
 '</tr>\n' +
 (function () {
   if (!cfg.usaRodape) return '';
-  // telefone do rodapé: o móvel da pessoa (se houver na coluna) OU o número padrão da empresa
-  var telRod = (p.tel && String(p.tel).trim()) ? String(p.tel).trim() : (cfg.telGeral || '');
-  var semLegais = !!p.esconder_legais;   // por pessoa: esconder NIF/Alvará (fica só site + telefone)
-  var inst = [
-    (!semLegais && cfg.nif) ? 'NIF/Matrícula ' + esc(cfg.nif) : '',
-    (!semLegais && cfg.alvara) ? 'Alvará n.º ' + esc(cfg.alvara) : '',
-    telRod ? 'Telf. ' + esc(telRod) : ''
-  ].filter(Boolean).join(' &middot; ');
+  var fr = (p.idioma === 'fr');          // Bélgica: rodapé em francês (nº belga no lugar do NIF, sem Alvará)
+  var semLegais = !!p.esconder_legais;   // por pessoa: esconder o bloco legal (fica só site + telefone)
+  // telefone: o da pessoa; em PT cai no número padrão da empresa se vazio; em FR fica vazio (nunca usa nº PT)
+  var telRod = (p.tel && String(p.tel).trim()) ? String(p.tel).trim() : (fr ? '' : (cfg.telGeral || ''));
+  var telLbl = fr ? 'Tél. ' : 'Telf. ';
+  var inst = (fr
+    ? [
+        (!semLegais && cfg.nifBe) ? 'TVA ' + esc(cfg.nifBe) : '',
+        telRod ? telLbl + esc(telRod) : ''
+      ]
+    : [
+        (!semLegais && cfg.nif) ? 'NIF/Matrícula ' + esc(cfg.nif) : '',
+        (!semLegais && cfg.alvara) ? 'Alvará n.º ' + esc(cfg.alvara) : '',
+        telRod ? telLbl + esc(telRod) : ''
+      ]
+  ).filter(Boolean).join(' &middot; ');
   var siteFoot = site ? '<a href="https://' + site + '" style="color:#9AA3AD;text-decoration:none;">' + esc(site) + '</a>' : '';
   var conteudo = [siteFoot, inst].filter(Boolean).join(' &middot; ');
   return conteudo ? '<tr><td colspan="3" style="padding:' + d.rodTop + 'px 0 0;">\n' +

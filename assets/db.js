@@ -41,7 +41,8 @@
       mor2: r.mor2 != null ? r.mor2 : '',
       telGeral: r.tel_geral != null ? r.tel_geral : '',
       nif: r.nif != null ? r.nif : '',
-      alvara: r.alvara != null ? r.alvara : ''
+      alvara: r.alvara != null ? r.alvara : '',
+      nifBe: r.nif_be != null ? r.nif_be : 'BE0771489302'
     };
   }
   function cfgToRow(c) {
@@ -49,7 +50,7 @@
       id: 1,
       logo_cm: c.logoCM, site: c.site, escala: c.escala, empresa: c.empresa,
       usa_rodape: !!c.usaRodape, usa_moldura: !!c.usaMoldura,
-      mor1: c.mor1, mor2: c.mor2, tel_geral: c.telGeral, nif: c.nif, alvara: c.alvara,
+      mor1: c.mor1, mor2: c.mor2, tel_geral: c.telGeral, nif: c.nif, alvara: c.alvara, nif_be: c.nifBe,
       updated_at: new Date().toISOString()
     };
   }
