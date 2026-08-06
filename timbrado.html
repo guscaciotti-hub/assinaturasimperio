@@ -27,6 +27,11 @@
   .op:hover{border-color:var(--mut)}
   .op.on{background:var(--evz);border-color:var(--evz);color:#04231F}
   .op.on b{color:#04231F}
+  .op .flag{display:none;font-size:10px;color:#1a9c53;font-weight:700;margin-top:2px}
+  .op.pub .flag{display:block}
+  .op.on.pub .flag{color:#04231F}
+  .sw{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--txt);cursor:pointer;user-select:none}
+  .sw input{width:18px;height:18px;accent-color:#1a9c53;cursor:pointer}
   .hint{font-size:12px;color:var(--mut);margin:8px 0 0}
   .acoes{margin-top:26px;display:flex;flex-direction:column;gap:10px}
   button{background:var(--evz);color:#04231F;border:0;border-radius:6px;padding:12px 16px;font:inherit;font-weight:600;font-size:14px;cursor:pointer}
@@ -67,12 +72,16 @@
   <div class="painel">
     <h2>Modelo</h2>
     <div class="ops" id="ops">
-      <div class="op on" data-op="1"><b>1</b>Aprovado</div>
-      <div class="op" data-op="2"><b>2</b>Simétrico</div>
-      <div class="op" data-op="3"><b>3</b>Mapa</div>
-      <div class="op" data-op="4"><b>4</b>Minimal</div>
+      <div class="op on" data-op="1"><b>1</b>Aprovado<span class="flag">✓ publicado</span></div>
+      <div class="op" data-op="2"><b>2</b>Simétrico<span class="flag">✓ publicado</span></div>
+      <div class="op" data-op="3"><b>3</b>Mapa<span class="flag">✓ publicado</span></div>
+      <div class="op" data-op="4"><b>4</b>Minimal<span class="flag">✓ publicado</span></div>
     </div>
-    <p class="hint">Cada opção é um modelo independente. A <b>1</b> é a arte aprovada; as outras são variações. Podes escrever no corpo (opcional) — fica guardado por opção.</p>
+    <p class="hint">Cada opção é um modelo independente. A <b>1</b> é a arte aprovada; as outras são variações.</p>
+
+    <h2>Publicação</h2>
+    <label class="sw"><input type="checkbox" id="aprvChk"> <span>Aprovado — visível no link da Soraia</span></label>
+    <p class="hint" id="aprvHint">Marca as opções aprovadas: só essas aparecem para a cliente descarregar.</p>
 
     <div class="acoes">
       <button onclick="window.print()">Imprimir / Guardar PDF</button>
@@ -94,29 +103,38 @@
 </div>
 
 <script src="assets/logo.js?v=17"></script>
+<script src="assets/supabase.js"></script>
 <script src="assets/timbrado-core.js?v=17"></script>
+<script src="assets/db.js?v=17"></script>
 <script>
 (function(){
   'use strict';
   document.getElementById('logo').src = window.IG_LOGO;
-  var folha=document.getElementById('folha'), arteBox=document.getElementById('arte'), doc=document.getElementById('doc');
+  var folha=document.getElementById('folha'), arteBox=document.getElementById('arte'),
+      doc=document.getElementById('doc'), aprvChk=document.getElementById('aprvChk'),
+      aprvHint=document.getElementById('aprvHint'), opsBox=document.getElementById('ops');
   var CHAVE='ig_timbrado_v3';
   function carregar(){ try{return JSON.parse(localStorage.getItem(CHAVE))||{};}catch(e){return {};} }
   var store=carregar(), opAtual='1';
+  var aprovados={};   // op -> bool (estado no banco)
 
+  function refletirFlags(){
+    [].forEach.call(opsBox.querySelectorAll('.op'),function(o){
+      o.classList.toggle('pub', !!aprovados[o.getAttribute('data-op')]);
+    });
+    aprvChk.checked = !!aprovados[opAtual];
+  }
   function pintar(){
-    // arte vetorial da opção
     arteBox.innerHTML=''; arteBox.appendChild(IGTimbrado.arte(opAtual));
-    // logótipo centrado só no modelo simétrico (2)
     folha.classList.toggle('logoc', opAtual==='2');
-    // corpo guardado
     doc.innerHTML = (store[opAtual] && store[opAtual].html) || '';
+    aprvChk.checked = !!aprovados[opAtual];
   }
   function guardarCorpo(){
     store[opAtual]=Object.assign({}, store[opAtual]||{}, {html: doc.innerHTML});
     try{localStorage.setItem(CHAVE, JSON.stringify(store));}catch(e){}
   }
-  document.getElementById('ops').addEventListener('click', function(e){
+  opsBox.addEventListener('click', function(e){
     var o=e.target.closest('.op'); if(!o) return;
     opAtual=o.getAttribute('data-op');
     [].forEach.call(this.querySelectorAll('.op'),function(x){x.classList.toggle('on',x===o);});
@@ -124,6 +142,30 @@
   });
   doc.addEventListener('input', guardarCorpo);
   window.limparCorpo=function(){ doc.innerHTML=''; guardarCorpo(); };
+
+  // ---- aprovação (guarda no banco; precisa da chave de escrita) ----
+  aprvChk.addEventListener('change', function(){
+    var val=aprvChk.checked, op=opAtual;
+    if(!IGDB.getKey()){
+      var k=prompt('Cole a chave de escrita (a mesma do gerador) para publicar:');
+      if(k) IGDB.setKey(k); else { aprvChk.checked=!val; return; }
+    }
+    aprovados[op]=val; refletirFlags();
+    IGDB.timbradoDefinir(op, val).then(function(){
+      aprvHint.textContent = val ? 'Opção '+op+' publicada — já aparece no link da Soraia.' : 'Opção '+op+' retirada do link da Soraia.';
+    }).catch(function(err){
+      aprovados[op]=!val; refletirFlags();
+      aprvHint.textContent = (String(err&&err.message).indexOf('chave')>=0)
+        ? 'Chave inválida — não foi possível publicar.' : 'Não foi possível guardar. Tente novamente.';
+    });
+  });
+
+  // carrega estado de aprovação do banco
+  IGDB.timbradoListar().then(function(list){
+    list.forEach(function(r){ aprovados[r.op]=!!r.aprovado; });
+    refletirFlags();
+  }).catch(function(){ aprvHint.textContent='(Sem ligação ao banco — a publicação fica indisponível offline.)'; });
+
   pintar();
 })();
 </script>

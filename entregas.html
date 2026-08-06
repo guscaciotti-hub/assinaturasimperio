@@ -116,7 +116,7 @@
 <script src="assets/supabase.js"></script>
 <script src="assets/sig-core.js?v=15"></script>
 <script src="assets/timbrado-core.js?v=17"></script>
-<script src="assets/db.js?v=15"></script>
+<script src="assets/db.js?v=17"></script>
 <script>
 var esc=IGCore.esc;
 var CFG=null, PESSOAS=[], VIS=[];
@@ -227,23 +227,34 @@ function buildFolha(op){
   f.appendChild(l);
   return f;
 }
-function renderTimbrados(){
+function montarGrid(ops){
   var box=document.getElementById('timbrados');
-  if(box.getAttribute('data-pronto')) return;   // só monta uma vez
+  if(!ops.length){
+    box.innerHTML='<p class="tintro">Ainda não há folhas timbradas publicadas. Assim que forem aprovadas, aparecem aqui para descarregar.</p>';
+    return;
+  }
   box.innerHTML='<p class="tintro">Escolha um modelo e clique em <b>Baixar PDF</b>. Na janela de impressão: destino <b>Guardar como PDF</b>, tamanho <b>A4</b>, margens <b>Nenhuma</b>. Toda a arte é vetorial — sai nítida na impressão.</p><div class="tgrid" id="tgrid"></div>';
   var grid=document.getElementById('tgrid');
-  IGTimbrado.opcoes.forEach(function(op){
+  ops.forEach(function(op){
     var card=document.createElement('div'); card.className='tcard';
-    var h=document.createElement('h3'); h.textContent=TNOMES[op]; card.appendChild(h);
+    var h=document.createElement('h3'); h.textContent=TNOMES[op]||('Opção '+op); card.appendChild(h);
     var prev=document.createElement('div'); prev.className='tprev';
     var folha=buildFolha(op); prev.appendChild(folha); card.appendChild(prev);
     var acts=document.createElement('div'); acts.className='acts';
     acts.innerHTML='<button onclick="baixarTimbrado(\''+op+'\',this)">Baixar PDF</button>';
     card.appendChild(acts); grid.appendChild(card);
-    // escala o A4 real (793.7px = 210mm @96dpi) para caber na miniatura
     var s=prev.clientWidth/793.7; folha.style.transform='scale('+s+')';
   });
+}
+function renderTimbrados(){
+  var box=document.getElementById('timbrados');
+  if(box.getAttribute('data-pronto')) return;   // só monta uma vez
   box.setAttribute('data-pronto','1');
+  box.innerHTML='<p class="tintro">A carregar…</p>';
+  IGDB.timbradoListar().then(function(list){
+    var ops=(list||[]).filter(function(r){return r.aprovado;}).map(function(r){return r.op;});
+    montarGrid(ops);
+  }).catch(function(){ montarGrid([]); });
 }
 function baixarTimbrado(op){
   var pa=document.getElementById('printArea'); pa.innerHTML=''; pa.appendChild(buildFolha(op));

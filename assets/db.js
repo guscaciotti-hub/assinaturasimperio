@@ -121,6 +121,16 @@
       var k = (key != null) ? String(key) : getKey();
       return sb.rpc('ig_marcar_enviado', { p_codigo: codigo, p_enviado: !!enviado, p_key: k })
         .then(function (res) { if (res.error) throw res.error; return true; });
+    },
+
+    // ---- papel timbrado: quais opções estão aprovadas (publicadas p/ a cliente) ----
+    timbradoListar: function () {
+      return sb.from('ig_timbrado').select('op,nome,aprovado,ordem').order('ordem', { ascending: true })
+        .then(function (res) { if (res.error) throw res.error; return res.data || []; });
+    },
+    timbradoDefinir: function (op, aprovado) {
+      return sb.rpc('ig_timbrado_definir', { p_op: String(op), p_aprovado: !!aprovado, p_key: getKey() })
+        .then(function (res) { if (res.error) throw res.error; return true; });
     }
   };
 
