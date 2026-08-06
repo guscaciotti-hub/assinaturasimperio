@@ -45,6 +45,7 @@
   .folha .logo{position:absolute;top:14mm;right:20mm;z-index:2}
   .folha .logo img{display:block;width:52mm;height:auto}
   .folha.logoc .logo{right:auto;left:50%;transform:translateX(-50%)}
+  .folha.artefull .logo{display:none}   /* Opção 1: o logo já vem na arte aprovada */
   .folha .corpo{position:absolute;left:22mm;right:22mm;top:48mm;bottom:30mm;overflow:hidden;z-index:1}
   .folha .corpo .doc{font-family:"Times New Roman",Georgia,serif;font-size:12pt;line-height:1.55;color:#1c1c1c;outline:none;min-height:100%}
   .folha .corpo .doc:empty:before{content:attr(data-ph);color:#c4c9d0}
@@ -125,6 +126,7 @@
   }
   function pintar(){
     arteBox.innerHTML=''; arteBox.appendChild(IGTimbrado.arte(opAtual));
+    folha.classList.toggle('artefull', opAtual==='1');   // Opção 1 = arte aprovada (logo incluído)
     folha.classList.toggle('logoc', opAtual==='2');
     doc.innerHTML = (store[opAtual] && store[opAtual].html) || '';
     aprvChk.checked = !!aprovados[opAtual];

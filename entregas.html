@@ -68,6 +68,7 @@
  .folha .logo{position:absolute;top:14mm;right:20mm;z-index:2}
  .folha .logo img{display:block;width:52mm;height:auto}
  .folha.logoc .logo{right:auto;left:50%;transform:translateX(-50%)}
+ .folha.artefull .logo{display:none}
  #printArea{position:fixed;left:-99999px;top:0}
  @media print{
    @page{size:A4;margin:0}
@@ -220,7 +221,7 @@ function filtrar(){
 // ---------- papel timbrado (aba) ----------
 var TNOMES={'1':'Opção 1 — Aprovado','2':'Opção 2 — Simétrico','3':'Opção 3 — Mapa','4':'Opção 4 — Minimal'};
 function buildFolha(op){
-  var f=document.createElement('div'); f.className='folha'+(op==='2'?' logoc':'');
+  var f=document.createElement('div'); f.className='folha'+(op==='2'?' logoc':'')+(op==='1'?' artefull':'');
   var a=document.createElement('div'); a.className='arte'; a.appendChild(IGTimbrado.arte(op)); f.appendChild(a);
   var l=document.createElement('div'); l.className='logo';
   var img=document.createElement('img'); img.src='assets/logo.svg?v=18'; img.alt='Império Global'; l.appendChild(img);

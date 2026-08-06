@@ -134,7 +134,16 @@
   };
 
   function arte(op) {
-    return (MODELOS[String(op)] || MODELOS['1'])();
+    op = String(op);
+    // Opção 1 = arte APROVADA da cliente (imagem final, idêntica). As outras são variações vetoriais.
+    if (op === '1') {
+      var img = document.createElement('img');
+      img.src = 'assets/timbrado-op1.png?v=19';
+      img.alt = 'Papel timbrado Império Global';
+      img.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:fill;');
+      return img;
+    }
+    return (MODELOS[op] || MODELOS['2'])();
   }
 
   global.IGTimbrado = {
