@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Timbrado A4 — Império Global | Evoluze Marketing</title>
+<style>
+  :root{--evz:#00D4C6;--ink:#12161B;--panel:#1A1F26;--line:#2B333D;--txt:#E6EAEF;--mut:#8D98A5;
+        --azul:#013F80;--sinal:#0072CE;--corpo:#79828D}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--ink);color:var(--txt);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:14px;line-height:1.5}
+  header{padding:18px 26px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  header h1{margin:0;font-size:16px;font-weight:600}
+  header span{color:var(--mut);font-size:12px}
+  header a.volta{margin-left:auto;color:var(--evz);font-size:12.5px;text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:7px 12px}
+  header a.volta:hover{border-color:var(--evz)}
+
+  .wrap{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 60px)}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .painel{padding:22px 24px;border-right:1px solid var(--line);background:var(--panel)}
+  .painel h2{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--evz);margin:0 0 12px}
+  .painel h2:not(:first-child){margin-top:24px}
+  .grp{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .opt{flex:1;min-width:calc(50% - 4px);text-align:center;background:#12171D;border:1px solid var(--line);color:var(--mut);
+       padding:9px 6px;font-size:12.5px;border-radius:6px;cursor:pointer;user-select:none}
+  .opt:hover{color:var(--txt)}
+  .opt.on{color:#04231F;background:var(--evz);border-color:var(--evz);font-weight:600}
+  .hint{font-size:12px;color:var(--mut);margin:4px 0 0}
+  .acoes{margin-top:26px;display:flex;flex-direction:column;gap:10px}
+  button{background:var(--evz);color:#04231F;border:0;border-radius:6px;padding:12px 16px;font:inherit;font-weight:600;font-size:14px;cursor:pointer}
+  button.ghost{background:transparent;color:var(--txt);border:1px solid var(--line);font-weight:500}
+  button:hover{filter:brightness(1.08)}
+
+  /* ---- área de pré-visualização ---- */
+  .out{padding:26px;overflow:auto;display:flex;justify-content:center;align-items:flex-start}
+  .folha{
+    width:210mm;height:297mm;background:#fff;color:#000;position:relative;overflow:hidden;
+    box-shadow:0 12px 40px rgba(0,0,0,.45);flex:none;
+  }
+  /* margens internas de segurança */
+  .folha .cab, .folha .rod, .folha .corpo{position:absolute;left:20mm;right:20mm}
+  .folha .cab{top:16mm;display:flex;align-items:center;gap:0}
+  .folha .cab.centro{justify-content:center}
+  .folha .cab img{display:block;height:auto}
+  .folha .cab .risca{flex:1}
+  .folha .cab.centro .risca{display:none}
+  /* filete de marca sob o cabeçalho */
+  .folha .filete{position:absolute;left:20mm;right:20mm;top:36mm;height:2px;
+    background:linear-gradient(90deg,var(--azul),var(--sinal) 60%,rgba(0,114,206,0));border-radius:2px}
+  .folha.centro .filete{background:linear-gradient(90deg,rgba(1,63,128,0),var(--sinal),rgba(1,63,128,0))}
+
+  /* corpo editável (opcional) */
+  .folha .corpo{top:52mm;bottom:34mm;overflow:hidden}
+  .folha .corpo .doc{font-family:"Times New Roman",Georgia,serif;font-size:12pt;line-height:1.55;color:#1c1c1c;outline:none;min-height:100%}
+  .folha .corpo .doc:empty:before{content:attr(data-ph);color:#b6bcc4}
+
+  /* marca de água — globo vetorial (SVG), sempre nítida */
+  .folha .marca{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
+    width:150mm;height:150mm;pointer-events:none;z-index:0}
+  .folha.semmarca .marca{display:none}
+  .folha .corpo,.folha .cab,.folha .rod,.folha .filete{z-index:1}
+
+  /* rodapé */
+  .folha .rod{bottom:14mm}
+  .folha .rod .fileteb{height:1.5px;background:linear-gradient(90deg,rgba(1,63,128,0),var(--sinal),rgba(1,63,128,0));margin-bottom:6px;border-radius:2px}
+  .folha .rod .txt{font-family:Arial,Helvetica,sans-serif;font-size:8pt;line-height:1.5;color:var(--corpo);text-align:center}
+  .folha .rod .txt b{color:var(--azul);font-weight:700}
+
+  /* impressão */
+  @media print{
+    @page{size:A4;margin:0}
+    body{background:#fff}
+    header,.painel,.out{all:unset}
+    header,.painel{display:none!important}
+    .wrap{display:block}
+    .out{display:block;padding:0}
+    .folha{box-shadow:none;width:210mm;height:297mm;margin:0}
+    .folha .corpo .doc:empty:before{content:""}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Timbrado A4 — Império Global</h1>
+  <span>Evoluze Marketing · uso interno · folha timbrada para impressão</span>
+  <a class="volta" href="index.html">← Gerador de assinaturas</a>
+</header>
+
+<div class="wrap">
+  <div class="painel">
+    <h2>Escritório</h2>
+    <div class="grp" id="grpEsc">
+      <div class="opt on" data-esc="pt">Portugal</div>
+      <div class="opt" data-esc="be">Bélgica</div>
+    </div>
+    <p class="hint" id="hintEsc"></p>
+
+    <h2>Marca de água</h2>
+    <div class="grp" id="grpMarca">
+      <div class="opt on" data-marca="1">Com globo</div>
+      <div class="opt" data-marca="0">Sem marca</div>
+    </div>
+
+    <h2>Cabeçalho</h2>
+    <div class="grp" id="grpCab">
+      <div class="opt on" data-cab="esq">Logo à esquerda</div>
+      <div class="opt" data-cab="centro">Logo centrado</div>
+    </div>
+    <p class="hint">Logo em <b>4,5&nbsp;cm</b> — mesma proporção aprovada nas assinaturas.</p>
+
+    <h2>Corpo</h2>
+    <div class="grp" id="grpCorpo">
+      <div class="opt on" data-corpo="livre">Em branco</div>
+      <div class="opt" data-corpo="carta">Guia de carta</div>
+    </div>
+    <p class="hint">«Em branco» imprime só o timbrado (cabeçalho + rodapé + marca) para escrever por cima. «Guia de carta» mostra data e saudação para escrever no ecrã antes de imprimir.</p>
+
+    <div class="acoes">
+      <button onclick="window.print()">Imprimir / Guardar PDF</button>
+      <button class="ghost" onclick="location.href='index.html'">Voltar ao gerador</button>
+    </div>
+    <p class="hint" style="margin-top:16px">Dica: em «Guardar como PDF» escolha tamanho <b>A4</b> e margens <b>Nenhuma</b>. A marca é vetorial — nunca sai desfocada, em qualquer impressora.</p>
+  </div>
+
+  <div class="out">
+    <div class="folha" id="folha">
+      <!-- marca de água: globo vetorial -->
+      <div class="marca" id="marca"></div>
+
+      <div class="cab" id="cab">
+        <img id="logo" src="" alt="Império Global">
+        <span class="risca"></span>
+      </div>
+      <div class="filete"></div>
+
+      <div class="corpo">
+        <div class="doc" id="doc" contenteditable="true" data-ph="Clique aqui para escrever o corpo da carta (opcional). Para imprimir só o timbrado, deixe em branco."></div>
+      </div>
+
+      <div class="rod">
+        <div class="fileteb"></div>
+        <div class="txt" id="rod"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/logo.js?v=16"></script>
+<script>
+(function(){
+  'use strict';
+  var AZUL='#013F80', SINAL='#0072CE';
+
+  // ---- logo do cabeçalho (mesmo asset aprovado das assinaturas) ----
+  var logo = document.getElementById('logo');
+  logo.src = window.IG_LOGO;
+  // 4,5 cm de largura (proporção do asset 640x183)
+  var LW = 45; // mm
+  logo.style.width = LW + 'mm';
+
+  // ---- marca de água: globo com meridianos/paralelos (vetorial = nítido) ----
+  function globo(){
+    var NS='http://www.w3.org/2000/svg';
+    var svg=document.createElementNS(NS,'svg');
+    svg.setAttribute('viewBox','0 0 400 400');
+    svg.setAttribute('width','100%'); svg.setAttribute('height','100%');
+    var op=0.06;                      // marca de água suave
+    var cx=200, cy=200, R=170;
+    function line(el,attrs){for(var k in attrs)el.setAttribute(k,attrs[k]);return el;}
+    // círculo do globo
+    var c=document.createElementNS(NS,'circle');
+    line(c,{cx:cx,cy:cy,r:R,fill:'none',stroke:AZUL,'stroke-width':1.6,'stroke-opacity':op});
+    svg.appendChild(c);
+    // paralelos (linhas de latitude — elipses horizontais achatadas)
+    [0.32,0.62,0.85].forEach(function(f){
+      var ry=R*Math.sqrt(1-f*f);      // projeção esférica
+      [-1,1].forEach(function(s){
+        var e=document.createElementNS(NS,'ellipse');
+        line(e,{cx:cx,cy:cy+s*R*f,rx:R*Math.cos(Math.asin(f))*1,ry:1.2,fill:'none',stroke:AZUL,'stroke-width':1.1,'stroke-opacity':op});
+        // largura do paralelo = corda do círculo àquela latitude
+        e.setAttribute('rx', R*Math.cos(Math.asin(f)));
+        e.setAttribute('ry', Math.max(1.4, R*0.10*(1-f)));
+        svg.appendChild(e);
+      });
+    });
+    // equador
+    var eq=document.createElementNS(NS,'ellipse');
+    line(eq,{cx:cx,cy:cy,rx:R,ry:R*0.12,fill:'none',stroke:AZUL,'stroke-width':1.2,'stroke-opacity':op});
+    svg.appendChild(eq);
+    // meridianos (elipses verticais de várias aberturas)
+    [0.30,0.60,0.85,1].forEach(function(f){
+      var e=document.createElementNS(NS,'ellipse');
+      line(e,{cx:cx,cy:cy,rx:R*f,ry:R,fill:'none',stroke:AZUL,'stroke-width':(f===1?1.4:1),'stroke-opacity':op});
+      svg.appendChild(e);
+    });
+    // eixo vertical
+    var ax=document.createElementNS(NS,'line');
+    line(ax,{x1:cx,y1:cy-R,x2:cx,y2:cy+R,stroke:AZUL,'stroke-width':1,'stroke-opacity':op});
+    svg.appendChild(ax);
+    return svg;
+  }
+  var marca=document.getElementById('marca');
+  marca.appendChild(globo());
+
+  // ---- dados legais por escritório ----
+  var COMUM = {
+    morada:'Rua da Floresta, 1521, Azabucho · 2410-021 Leiria, Portugal',
+    site:'imperioglobal.eu'
+  };
+  var LEGAL = {
+    pt:{ tel:'Telf. +351 244 811 076', legal:'NIF/Matrícula 514 370 084 · Alvará n.º 146039',
+         hint:'Rodapé PT: morada · telefone · NIF/Matrícula · Alvará · site.' },
+    be:{ tel:'Tél. +351 244 811 076', legal:'TVA BE0771489302',
+         hint:'Rodapé BE (francês): morada · Tél. · TVA · site — sem Alvará, número belga no lugar do NIF.' }
+  };
+
+  var estado = { esc:'pt', marca:'1', cab:'esq', corpo:'livre' };
+  var folha=document.getElementById('folha');
+  var doc=document.getElementById('doc');
+
+  function pintarRodape(){
+    var L=LEGAL[estado.esc];
+    var linha2=[L.legal, L.tel, COMUM.site].filter(Boolean).join(' · ');
+    document.getElementById('rod').innerHTML =
+      '<b>Império Global Telecomunicações</b><br>' +
+      COMUM.morada + '<br>' + linha2;
+    document.getElementById('hintEsc').textContent = L.hint;
+  }
+  function pintarCorpo(){
+    if(estado.corpo==='carta'){
+      doc.innerHTML =
+        '<p style="text-align:right;margin:0 0 28px">Leiria, ____ de ______________ de 20____</p>' +
+        '<p style="margin:0 0 18px">Exmos. Senhores,</p>' +
+        '<p style="margin:0;color:#b6bcc4">(corpo da carta…)</p>';
+    } else {
+      doc.innerHTML='';
+    }
+  }
+  function aplicar(){
+    folha.classList.toggle('semmarca', estado.marca==='0');
+    folha.classList.toggle('centro', estado.cab==='centro');
+    document.getElementById('cab').classList.toggle('centro', estado.cab==='centro');
+    pintarRodape();
+  }
+
+  function ligarGrupo(id, chave){
+    document.getElementById(id).addEventListener('click', function(e){
+      var o=e.target.closest('.opt'); if(!o) return;
+      estado[chave]=o.getAttribute('data-'+chave);
+      [].forEach.call(this.querySelectorAll('.opt'),function(el){el.classList.toggle('on',el===o);});
+      if(chave==='corpo') pintarCorpo(); else aplicar();
+    });
+  }
+  ligarGrupo('grpEsc','esc');
+  ligarGrupo('grpMarca','marca');
+  ligarGrupo('grpCab','cab');
+  ligarGrupo('grpCorpo','corpo');
+
+  aplicar();
+  pintarCorpo();
+})();
+</script>
+</body>
+</html>
