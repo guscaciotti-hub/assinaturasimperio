@@ -11,7 +11,7 @@
   var LOGO  = global.IG_LOGO;
   var AZUL  = '#013F80', SINAL = '#0072CE', CORPO = '#79828D';
   var FF    = 'Arial,Helvetica,sans-serif';
-  var DPI   = 96, CM = 2.54, RATIO = 2910 / 840;   // 96 dpi; ratio do logótipo vetorial oficial
+  var DPI   = 96, CM = 2.54, RATIO = 640 / 183;   // 96 dpi = padrão Outlook/web
 
   function esc(s) {
     return String(s == null ? '' : s)
