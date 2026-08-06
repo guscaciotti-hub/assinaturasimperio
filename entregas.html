@@ -49,6 +49,32 @@
  .dica{color:#9AA3AD;font-size:12px;margin-top:10px}
  .estado{color:#79828D;font-size:14px;padding:26px 0}
  footer{margin-top:44px;padding-top:16px;border-top:1px solid #E1E7EC;color:#9AA3AD;font-size:12px}
+ /* separadores (abas) */
+ .tabbar{display:flex;gap:4px;margin-bottom:22px;border-bottom:1px solid #E1E7EC}
+ .tabbar button{background:none;border:0;border-bottom:3px solid transparent;padding:11px 18px;margin-bottom:-1px;font:inherit;font-size:14px;font-weight:bold;color:#79828D;cursor:pointer}
+ .tabbar button.on{color:#013F80;border-bottom-color:#0072CE}
+ .tabbar button:hover{color:#013F80}
+ /* papel timbrado */
+ .tintro{color:#79828D;margin:0 0 20px}
+ .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px}
+ .tcard{background:#fff;border:1px solid #E1E7EC;border-radius:10px;padding:16px;text-align:center}
+ .tcard h3{margin:0 0 12px;font-size:14px;color:#013F80}
+ .tprev{width:100%;aspect-ratio:210/297;position:relative;overflow:hidden;border:1px solid #E1E7EC;border-radius:4px;background:#fff}
+ .tprev .folha{position:absolute;top:0;left:0;transform-origin:top left;box-shadow:none}
+ .tcard .acts{justify-content:center;margin-top:14px}
+ /* folha timbrada (arte vetorial + logo) */
+ .folha{width:210mm;height:297mm;background:#fff;position:relative;overflow:hidden}
+ .folha .arte{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+ .folha .logo{position:absolute;top:14mm;right:20mm;z-index:2}
+ .folha .logo img{display:block;width:52mm;height:auto}
+ .folha.logoc .logo{right:auto;left:50%;transform:translateX(-50%)}
+ #printArea{position:fixed;left:-99999px;top:0}
+ @media print{
+   @page{size:A4;margin:0}
+   body.imprimindo .w{display:none!important}
+   body.imprimindo #printArea{position:static;left:0}
+   body.imprimindo #printArea .folha{box-shadow:none;margin:0}
+ }
 </style>
 </head>
 <body>
@@ -57,6 +83,8 @@
  <h1 id="tit">Assinaturas de correio eletrónico</h1>
  <p id="sub">Império Global Telecomunicações · instruções de instalação</p>
 </header>
+
+<div class="tabbar" id="tabbar" style="display:none"></div>
 
 <details class="i" id="instr" open>
  <summary>Como instalar a assinatura</summary>
@@ -76,15 +104,18 @@
 <div class="busca" id="buscaBox" style="display:none"><input id="busca" type="search" placeholder="Procurar por nome, função, código ou e-mail…" oninput="filtrar()"></div>
 
 <div id="conteudo"><div class="estado" id="estado">A carregar…</div></div>
+<div id="timbrados" style="display:none"></div>
 
 <footer>Em caso de dúvida ou de alteração de dados, contacte o departamento responsável.<br>Produzido pela Evoluze Marketing.</footer>
 </div>
 
 <div id="clipHolder" style="position:fixed;left:-99999px;top:0;background:#fff"></div>
+<div id="printArea"></div>
 
-<script src="assets/logo.js?v=15"></script>
+<script src="assets/logo.js?v=17"></script>
 <script src="assets/supabase.js"></script>
 <script src="assets/sig-core.js?v=15"></script>
+<script src="assets/timbrado-core.js?v=17"></script>
 <script src="assets/db.js?v=15"></script>
 <script>
 var esc=IGCore.esc;
@@ -186,6 +217,60 @@ function filtrar(){
   renderMaster();
 }
 
+// ---------- papel timbrado (aba) ----------
+var TNOMES={'1':'Opção 1 — Aprovado','2':'Opção 2 — Simétrico','3':'Opção 3 — Mapa','4':'Opção 4 — Minimal'};
+function buildFolha(op){
+  var f=document.createElement('div'); f.className='folha'+(op==='2'?' logoc':'');
+  var a=document.createElement('div'); a.className='arte'; a.appendChild(IGTimbrado.arte(op)); f.appendChild(a);
+  var l=document.createElement('div'); l.className='logo';
+  var img=document.createElement('img'); img.src=window.IG_LOGO; img.alt='Império Global'; l.appendChild(img);
+  f.appendChild(l);
+  return f;
+}
+function renderTimbrados(){
+  var box=document.getElementById('timbrados');
+  if(box.getAttribute('data-pronto')) return;   // só monta uma vez
+  box.innerHTML='<p class="tintro">Escolha um modelo e clique em <b>Baixar PDF</b>. Na janela de impressão: destino <b>Guardar como PDF</b>, tamanho <b>A4</b>, margens <b>Nenhuma</b>. Toda a arte é vetorial — sai nítida na impressão.</p><div class="tgrid" id="tgrid"></div>';
+  var grid=document.getElementById('tgrid');
+  IGTimbrado.opcoes.forEach(function(op){
+    var card=document.createElement('div'); card.className='tcard';
+    var h=document.createElement('h3'); h.textContent=TNOMES[op]; card.appendChild(h);
+    var prev=document.createElement('div'); prev.className='tprev';
+    var folha=buildFolha(op); prev.appendChild(folha); card.appendChild(prev);
+    var acts=document.createElement('div'); acts.className='acts';
+    acts.innerHTML='<button onclick="baixarTimbrado(\''+op+'\',this)">Baixar PDF</button>';
+    card.appendChild(acts); grid.appendChild(card);
+    // escala o A4 real (793.7px = 210mm @96dpi) para caber na miniatura
+    var s=prev.clientWidth/793.7; folha.style.transform='scale('+s+')';
+  });
+  box.setAttribute('data-pronto','1');
+}
+function baixarTimbrado(op){
+  var pa=document.getElementById('printArea'); pa.innerHTML=''; pa.appendChild(buildFolha(op));
+  document.body.classList.add('imprimindo');
+  var limpar=function(){ document.body.classList.remove('imprimindo'); pa.innerHTML=''; window.onafterprint=null; };
+  window.onafterprint=limpar;
+  window.print();
+  setTimeout(limpar,800);
+}
+function initTabs(){
+  var tb=document.getElementById('tabbar'); tb.style.display='flex';
+  tb.innerHTML='<button id="tabA" class="on" onclick="mostrarTab(\'ass\')">Assinaturas</button>'+
+               '<button id="tabT" onclick="mostrarTab(\'timb\')">Papel timbrado</button>';
+  document.getElementById('tit').textContent='Design institucional — Império Global';
+  document.getElementById('sub').textContent='Império Global Telecomunicações · assinaturas de e-mail e papel timbrado';
+}
+function mostrarTab(n){
+  var ass=(n==='ass');
+  document.getElementById('instr').style.display=ass?'':'none';
+  document.getElementById('buscaBox').style.display=(ass&&PESSOAS.length>8)?'':'none';
+  document.getElementById('conteudo').style.display=ass?'':'none';
+  document.getElementById('timbrados').style.display=ass?'none':'';
+  document.getElementById('tabA').classList.toggle('on',ass);
+  document.getElementById('tabT').classList.toggle('on',!ass);
+  if(!ass) renderTimbrados();
+}
+
 // ---------- visão individual (uma) ----------
 function renderIndividual(p){
   document.getElementById('tit').textContent='A sua assinatura de e-mail';
@@ -211,6 +296,7 @@ IGDB.getConfig().then(function(cfg){
       PESSOAS=rows; VIS=rows.slice();
       document.getElementById('buscaBox').style.display=(rows.length>8?'':'none');
       renderMaster();
+      initTabs();
     });
   }
   // sem parâmetros -> acesso restrito
