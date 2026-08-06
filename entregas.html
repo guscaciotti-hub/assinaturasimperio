@@ -112,9 +112,9 @@
 <div id="clipHolder" style="position:fixed;left:-99999px;top:0;background:#fff"></div>
 <div id="printArea"></div>
 
-<script src="assets/logo.js?v=17"></script>
+<script src="assets/logo.js?v=18"></script>
 <script src="assets/supabase.js"></script>
-<script src="assets/sig-core.js?v=15"></script>
+<script src="assets/sig-core.js?v=18"></script>
 <script src="assets/timbrado-core.js?v=17"></script>
 <script src="assets/db.js?v=17"></script>
 <script>
@@ -223,7 +223,7 @@ function buildFolha(op){
   var f=document.createElement('div'); f.className='folha'+(op==='2'?' logoc':'');
   var a=document.createElement('div'); a.className='arte'; a.appendChild(IGTimbrado.arte(op)); f.appendChild(a);
   var l=document.createElement('div'); l.className='logo';
-  var img=document.createElement('img'); img.src=window.IG_LOGO; img.alt='Império Global'; l.appendChild(img);
+  var img=document.createElement('img'); img.src='assets/logo.svg?v=18'; img.alt='Império Global'; l.appendChild(img);
   f.appendChild(l);
   return f;
 }
