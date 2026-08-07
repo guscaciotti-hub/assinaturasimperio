@@ -71,11 +71,26 @@
  .folha.artefull .logo{top:11mm;right:13mm}
  .folha.artefull .logo img{width:58mm}
  #printArea{position:fixed;left:-99999px;top:0}
+ /* editor de documento sobre o timbrado */
+ #editor{position:fixed;inset:0;background:rgba(15,23,32,.88);z-index:60;display:none;overflow:auto;padding:22px;text-align:center}
+ #editor.on{display:block}
+ #editor .bar{margin:0 auto 16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+ #editor .bar button{background:#013F80;color:#fff;border:0;border-radius:6px;padding:11px 18px;font:inherit;font-size:14px;font-weight:bold;cursor:pointer}
+ #editor .bar button.lk{background:#fff;color:#013F80}
+ #editor .folha{margin:0 auto;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+ #editor .corpo{position:absolute;left:22mm;right:22mm;top:48mm;bottom:30mm;overflow:hidden;z-index:3}
+ #editor .corpo .doc{font-family:"Times New Roman",Georgia,serif;font-size:12pt;line-height:1.55;color:#1c1c1c;outline:none;min-height:100%}
+ #editor .corpo .doc:empty:before{content:attr(data-ph);color:#b6bcc4}
  @media print{
    @page{size:A4;margin:0}
    body.imprimindo .w{display:none!important}
    body.imprimindo #printArea{position:static;left:0}
    body.imprimindo #printArea .folha{box-shadow:none;margin:0}
+   body.editando .w{display:none!important}
+   body.editando #editor{position:static;background:#fff;padding:0;overflow:visible}
+   body.editando #editor .bar{display:none!important}
+   body.editando #editor .folha{box-shadow:none;margin:0}
+   body.editando #editor .corpo .doc:empty:before{content:""}
  }
 </style>
 </head>
@@ -113,11 +128,12 @@
 
 <div id="clipHolder" style="position:fixed;left:-99999px;top:0;background:#fff"></div>
 <div id="printArea"></div>
+<div id="editor"></div>
 
 <script src="assets/logo.js?v=15"></script>
 <script src="assets/supabase.js"></script>
 <script src="assets/sig-core.js?v=15"></script>
-<script src="assets/timbrado-core.js?v=23"></script>
+<script src="assets/timbrado-core.js?v=24"></script>
 <script src="assets/db.js?v=17"></script>
 <script>
 var esc=IGCore.esc;
@@ -243,7 +259,8 @@ function montarGrid(ops){
     var prev=document.createElement('div'); prev.className='tprev';
     var folha=buildFolha(op); prev.appendChild(folha); card.appendChild(prev);
     var acts=document.createElement('div'); acts.className='acts';
-    acts.innerHTML='<button onclick="baixarTimbrado(\''+op+'\',this)">Baixar PDF</button>';
+    acts.innerHTML='<button onclick="abrirEditor(\''+op+'\')">Escrever documento</button>'+
+                   '<button class="lk" onclick="baixarTimbrado(\''+op+'\',this)">Baixar em branco</button>';
     card.appendChild(acts); grid.appendChild(card);
     var s=prev.clientWidth/793.7; folha.style.transform='scale('+s+')';
   });
@@ -262,6 +279,34 @@ function baixarTimbrado(op){
   var pa=document.getElementById('printArea'); pa.innerHTML=''; pa.appendChild(buildFolha(op));
   document.body.classList.add('imprimindo');
   var limpar=function(){ document.body.classList.remove('imprimindo'); pa.innerHTML=''; window.onafterprint=null; };
+  window.onafterprint=limpar;
+  window.print();
+  setTimeout(limpar,800);
+}
+// ---- escrever documento sobre o timbrado (na própria folha) ----
+function abrirEditor(op){
+  var ed=document.getElementById('editor');
+  ed.innerHTML='';
+  var bar=document.createElement('div'); bar.className='bar';
+  bar.innerHTML='<button onclick="imprimirEditor()">Imprimir / Guardar PDF</button>'+
+                '<button class="lk" onclick="fecharEditor()">Fechar</button>';
+  ed.appendChild(bar);
+  var folha=buildFolha(op);
+  var corpo=document.createElement('div'); corpo.className='corpo';
+  var doc=document.createElement('div'); doc.className='doc'; doc.id='edDoc';
+  doc.setAttribute('contenteditable','true');
+  doc.setAttribute('data-ph','Escreva aqui o texto do documento… (será impresso sobre o timbrado)');
+  corpo.appendChild(doc); folha.appendChild(corpo);
+  ed.appendChild(folha);
+  ed.classList.add('on');
+  setTimeout(function(){ doc.focus(); }, 60);
+}
+function fecharEditor(){
+  var ed=document.getElementById('editor'); ed.classList.remove('on'); ed.innerHTML='';
+}
+function imprimirEditor(){
+  document.body.classList.add('editando');
+  var limpar=function(){ document.body.classList.remove('editando'); window.onafterprint=null; };
   window.onafterprint=limpar;
   window.print();
   setTimeout(limpar,800);
