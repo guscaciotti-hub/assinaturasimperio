@@ -1,8 +1,8 @@
 /* ==========================================================================
    Núcleo do timbrado A4 — Império Global (Evoluze)
    Opção 1 = arte APROVADA (PNG, logo achatado removido + logo vetorial por cima).
-   Opções 2+ = variações CLEAN vetoriais (globo, mapa pontilhado, canto azul,
-   linha fina) + logo vetorial oficial sobreposto (HTML). Tudo pronto p/ impressão.
+   Opções 2+ = variações CLEAN/PREMIUM vetoriais — cores BEM sutis (marca d'água)
+   + logo vetorial oficial sobreposto (HTML). Tudo pronto p/ impressão.
    ========================================================================== */
 (function (global) {
   'use strict';
@@ -11,19 +11,22 @@
 
   function el(t, a){ var e=document.createElementNS(NS,t); if(a) for(var k in a) e.setAttribute(k,a[k]); return e; }
 
-  // ---------- primitivas ----------
-  function defsComuns(){
-    var defs=el('defs');
+  function defs(){
+    var d=el('defs');
     var pat=el('pattern',{id:'igpts',width:1.7,height:1.7,patternUnits:'userSpaceOnUse'});
-    pat.appendChild(el('circle',{cx:0.85,cy:0.85,r:0.42,fill:AZUL})); defs.appendChild(pat);
-    var g1=el('linearGradient',{id:'igcg',x1:0,y1:1,x2:1,y2:0});
-    g1.appendChild(el('stop',{offset:0,'stop-color':'#BFD4EC'}));
-    g1.appendChild(el('stop',{offset:1,'stop-color':'#E8F0F9'})); defs.appendChild(g1);
-    var g2=el('linearGradient',{id:'igv',x1:0,y1:0,x2:0,y2:1});
-    g2.appendChild(el('stop',{offset:0,'stop-color':AZUL}));
-    g2.appendChild(el('stop',{offset:1,'stop-color':SINAL})); defs.appendChild(g2);
-    return defs;
+    pat.appendChild(el('circle',{cx:0.85,cy:0.85,r:0.42,fill:AZUL})); d.appendChild(pat);
+    // gradiente MUITO claro (marca d'água) para cantos/faixas
+    var g=el('linearGradient',{id:'igsoft',x1:0,y1:1,x2:1,y2:0});
+    g.appendChild(el('stop',{offset:0,'stop-color':'#DFEAF6'}));
+    g.appendChild(el('stop',{offset:1,'stop-color':'#F3F8FC'})); d.appendChild(g);
+    var gv=el('linearGradient',{id:'igsoftv',x1:0,y1:0,x2:0,y2:1});
+    gv.appendChild(el('stop',{offset:0,'stop-color':'#CFE0F2'}));
+    gv.appendChild(el('stop',{offset:1,'stop-color':'#EAF2FB'})); d.appendChild(gv);
+    return d;
   }
+  function base(){ var s=el('svg',{viewBox:'0 0 210 297',preserveAspectRatio:'none',width:'100%',height:'100%'}); s.appendChild(defs()); return s; }
+
+  // ---- primitivas (todas discretas) ----
   function globo(cx,cy,R,op){
     var g=el('g',{stroke:AZUL,fill:'none','stroke-opacity':op});
     g.appendChild(el('circle',{cx:cx,cy:cy,r:R,'stroke-width':R*0.008}));
@@ -41,50 +44,60 @@
       .forEach(function(c){ g.appendChild(el('ellipse',{cx:c[0],cy:c[1],rx:c[2],ry:c[3],transform:'rotate('+c[4]+' '+c[0]+' '+c[1]+')'})); });
     return g;
   }
-  function lineDot(x1,x2,y,r){
+  function lineDot(x1,x2,y){
     var g=el('g');
-    g.appendChild(el('line',{x1:x1,y1:y,x2:x2,y2:y,stroke:SINAL,'stroke-width':0.5,'stroke-opacity':0.9}));
-    g.appendChild(el('circle',{cx:x2+r+0.6,cy:y,r:r,fill:SINAL})); return g;
+    g.appendChild(el('line',{x1:x1,y1:y,x2:x2,y2:y,stroke:SINAL,'stroke-width':0.4,'stroke-opacity':0.5}));
+    g.appendChild(el('circle',{cx:x2+1.4,cy:y,r:0.9,fill:SINAL,'fill-opacity':0.55})); return g;
   }
-  function filete(y,x0,x1){ return el('rect',{x:x0,y:y,width:x1-x0,height:0.5,fill:SINAL,'fill-opacity':0.6}); }
+  function filete(y,x0,x1,op){ return el('rect',{x:x0,y:y,width:x1-x0,height:0.4,fill:SINAL,'fill-opacity':op||0.4}); }
   function poly(pts,fill,op){ return el('polygon',{points:pts,fill:fill,'fill-opacity':op}); }
-  function cantoBR(sz){ sz=sz||60; var g=el('g');
-    g.appendChild(poly('210,297 '+(210-sz)+',297 210,'+(297-sz),'url(#igcg)',0.85));
-    g.appendChild(poly('210,297 '+(210-sz*0.42)+',297 210,'+(297-sz*0.42),'#9CBBE0',0.75));
-    g.appendChild(poly('210,297 '+(210-sz*0.16)+',297 210,'+(297-sz*0.16),AZUL,0.55)); return g; }
-  function cantoTL(sz){ sz=sz||56; var g=el('g');
-    g.appendChild(poly('0,0 '+sz+',0 0,'+sz,'url(#igcg)',0.85));
-    g.appendChild(poly('0,0 '+sz*0.55+',0 0,'+sz*0.5,'#9CBBE0',0.75)); return g; }
-  function cantoTR(sz){ sz=sz||56; var g=el('g');
-    g.appendChild(poly('210,0 '+(210-sz)+',0 210,'+sz,'url(#igcg)',0.85));
-    g.appendChild(poly('210,0 '+(210-sz*0.55)+',0 210,'+sz*0.5,'#9CBBE0',0.75)); return g; }
-  function cantoBL(sz){ sz=sz||56; var g=el('g');
-    g.appendChild(poly('0,297 '+sz+',297 0,'+(297-sz),'url(#igcg)',0.85));
-    g.appendChild(poly('0,297 '+sz*0.55+',297 0,'+(297-sz*0.5),'#9CBBE0',0.75)); return g; }
-  function barraEsq(){ return el('rect',{x:0,y:0,width:5,height:297,fill:'url(#igv)','fill-opacity':0.9}); }
+  function ln(x1,y1,x2,y2,op){ return el('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:SINAL,'stroke-width':0.4,'stroke-opacity':op||0.3}); }
 
-  function base(){ var s=el('svg',{viewBox:'0 0 210 297',preserveAspectRatio:'none',width:'100%',height:'100%'}); s.appendChild(defsComuns()); return s; }
+  // cantos suaves (marca d'água): triângulo claro + fio finíssimo
+  function cantoBR(sz){ sz=sz||58; var g=el('g');
+    g.appendChild(poly('210,297 '+(210-sz)+',297 210,'+(297-sz),'url(#igsoft)',0.7));
+    g.appendChild(ln(210-sz,297,210,297-sz,0.30)); return g; }
+  function cantoTR(sz){ sz=sz||54; var g=el('g');
+    g.appendChild(poly('210,0 '+(210-sz)+',0 210,'+sz,'url(#igsoft)',0.7));
+    g.appendChild(ln(210-sz,0,210,sz,0.30)); return g; }
+  function cantoTL(sz){ sz=sz||54; var g=el('g');
+    g.appendChild(poly('0,0 '+sz+',0 0,'+sz,'url(#igsoft)',0.7));
+    g.appendChild(ln(sz,0,0,sz,0.30)); return g; }
+  function cantoBL(sz){ sz=sz||54; var g=el('g');
+    g.appendChild(poly('0,297 '+sz+',297 0,'+(297-sz),'url(#igsoft)',0.7));
+    g.appendChild(ln(sz,297,0,297-sz,0.30)); return g; }
+  function barraEsq(){ return el('rect',{x:0,y:0,width:3.5,height:297,fill:'url(#igsoftv)','fill-opacity':0.85}); }
+  function moldura(){ return el('rect',{x:11,y:11,width:188,height:275,fill:'none',stroke:SINAL,'stroke-width':0.4,'stroke-opacity':0.28}); }
+  function cantosFinos(){ var g=el('g');
+    // pequenos "colchetes" nos 4 cantos
+    [[16,16,1],[194,16,-1],[16,281,1],[194,281,-1]].forEach(function(c){
+      var x=c[0],y=c[1],d=c[2],L=10;
+      g.appendChild(ln(x,y,x+d*L,y,0.30)); g.appendChild(ln(x,y,x,y+(y<150?L:-L),0.30));
+    });
+    return g;
+  }
 
-  // ---------- opções ----------
   var MODELOS = {
-    // 1 tratado à parte (imagem aprovada). Definido aqui só como fallback vetorial.
-    '1': function(){ var s=base(); s.appendChild(globo(8,70,64,0.10)); s.appendChild(lineDot(20,120,22,1.1)); s.appendChild(mapa(105,190,1,0.16)); s.appendChild(cantoBR(60)); return s; },
-    // 2 — CENTRAL (formal, muito clean): logo centrado, filete simétrico, globo grande leve ao fundo
-    '2': function(){ var s=base(); s.appendChild(filete(46,55,155)); s.appendChild(globo(105,205,82,0.05)); return s; },
-    // 3 — MAPA: logo dir + linha/ponto, mapa pontilhado em banda no rodapé
-    '3': function(){ var s=base(); s.appendChild(lineDot(20,120,22,1.1)); s.appendChild(mapa(30,250,1.5,0.12)); return s; },
-    // 4 — GLOBO: logo dir, filete no topo, globo grande a sangrar no canto inferior-esq
-    '4': function(){ var s=base(); s.appendChild(filete(34,20,120)); s.appendChild(globo(-8,272,72,0.08)); s.appendChild(cantoBR(34)); return s; },
-    // 5 — FAIXA LATERAL: barra azul fina à esquerda, logo dir, globo leve inf-dir
-    '5': function(){ var s=base(); s.appendChild(barraEsq()); s.appendChild(globo(198,252,52,0.06)); s.appendChild(filete(34,16,120)); return s; },
-    // 6 — CANTOS: logo esq, cantos azuis (topo-dir + inf-esq), mapa leve ao centro
-    '6': function(){ var s=base(); s.appendChild(cantoTR(56)); s.appendChild(cantoBL(56)); s.appendChild(mapa(92,215,0.9,0.10)); return s; },
-    // 7 — MINIMAL: logo dir, filete fino no topo, pequeno canto azul inf-dir
-    '7': function(){ var s=base(); s.appendChild(filete(34,20,150)); s.appendChild(cantoBR(26)); return s; }
+    '1': function(){ var s=base(); s.appendChild(globo(8,70,64,0.09)); s.appendChild(lineDot(20,120,22)); s.appendChild(mapa(105,190,1,0.12)); s.appendChild(cantoBR(58)); return s; },
+    '2': function(){ var s=base(); s.appendChild(filete(46,55,155,0.4)); s.appendChild(globo(105,205,82,0.045)); return s; },
+    '3': function(){ var s=base(); s.appendChild(lineDot(20,120,22)); s.appendChild(mapa(30,250,1.5,0.09)); return s; },
+    '4': function(){ var s=base(); s.appendChild(filete(34,20,120,0.4)); s.appendChild(globo(-8,272,72,0.06)); s.appendChild(cantoBR(32)); return s; },
+    '5': function(){ var s=base(); s.appendChild(barraEsq()); s.appendChild(globo(198,252,52,0.05)); s.appendChild(filete(34,16,120,0.4)); return s; },
+    '6': function(){ var s=base(); s.appendChild(cantoTR(54)); s.appendChild(cantoBL(54)); s.appendChild(mapa(92,215,0.9,0.08)); return s; },
+    '7': function(){ var s=base(); s.appendChild(filete(34,20,150,0.4)); s.appendChild(cantoBR(24)); return s; },
+    // ---- PREMIUM ----
+    '8':  function(){ var s=base(); s.appendChild(filete(30,20,190,0.35)); return s; },                                    // Filete (logo esq)
+    '9':  function(){ var s=base(); s.appendChild(globo(105,178,88,0.04)); return s; },                                     // Água (globo central)
+    '10': function(){ var s=base(); s.appendChild(mapa(72,172,1.2,0.06)); return s; },                                      // Mapa Água (centro)
+    '11': function(){ var s=base(); s.appendChild(moldura()); return s; },                                                  // Moldura fina
+    '12': function(){ var s=base(); s.appendChild(cantosFinos()); return s; },                                             // Cantos finos
+    '13': function(){ var s=base(); s.appendChild(filete(30,30,180,0.35)); s.appendChild(filete(281,30,180,0.35)); return s; } // Duplo filete
   };
 
-  var NOMES  = { '1':'Aprovado','2':'Central','3':'Mapa','4':'Globo','5':'Faixa','6':'Cantos','7':'Minimal' };
-  var LOGO   = { '1':'dir','2':'centro','3':'dir','4':'dir','5':'dir','6':'esq','7':'dir' };
+  var NOMES = { '1':'Aprovado','2':'Central','3':'Mapa','4':'Globo','5':'Faixa','6':'Cantos','7':'Minimal',
+                '8':'Filete','9':'Água','10':'Mapa água','11':'Moldura','12':'Cantos finos','13':'Duplo filete' };
+  var LOGO  = { '1':'dir','2':'centro','3':'dir','4':'dir','5':'dir','6':'esq','7':'dir',
+                '8':'esq','9':'dir','10':'centro','11':'dir','12':'dir','13':'centro' };
 
   function arte(op){
     op=String(op);
@@ -100,7 +113,7 @@
 
   global.IGTimbrado = {
     AZUL:AZUL, SINAL:SINAL,
-    opcoes:['1','2','3','4','5','6','7'],
+    opcoes:['1','2','3','4','5','6','7','8','9','10','11','12','13'],
     nomes:NOMES,
     nome:function(op){ return NOMES[String(op)]||('Opção '+op); },
     logoPos:function(op){ return LOGO[String(op)]||'dir'; },
