@@ -138,9 +138,9 @@
     // Opção 1 = arte APROVADA da cliente (imagem final, idêntica). As outras são variações vetoriais.
     if (op === '1') {
       var img = document.createElement('img');
-      img.src = 'assets/timbrado-op1.png?v=19';
+      img.src = 'assets/timbrado-op1.png?v=23';   // arte SEM o logo (logo entra por cima, vetorial)
       img.alt = 'Papel timbrado Império Global';
-      img.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:contain;object-position:center;');
+      img.setAttribute('style', 'position:absolute;top:0;left:0;width:100%;height:auto;display:block;');
       return img;
     }
     return (MODELOS[op] || MODELOS['2'])();
