@@ -68,6 +68,7 @@
  .folha .logo{position:absolute;top:14mm;right:20mm;z-index:2}
  .folha .logo img{display:block;width:52mm;height:auto}
  .folha.logoc .logo{right:auto;left:50%;transform:translateX(-50%)}
+ .folha.logol .logo{right:auto;left:20mm}
  .folha.artefull .logo{top:11mm;right:13mm}
  .folha.artefull .logo img{width:58mm}
  #printArea{position:fixed;left:-99999px;top:0}
@@ -133,7 +134,7 @@
 <script src="assets/logo.js?v=15"></script>
 <script src="assets/supabase.js"></script>
 <script src="assets/sig-core.js?v=15"></script>
-<script src="assets/timbrado-core.js?v=24"></script>
+<script src="assets/timbrado-core.js?v=25"></script>
 <script src="assets/db.js?v=17"></script>
 <script>
 var esc=IGCore.esc;
@@ -238,7 +239,9 @@ function filtrar(){
 // ---------- papel timbrado (aba) ----------
 var TNOMES={'1':'Opção 1 — Aprovado','2':'Opção 2 — Simétrico','3':'Opção 3 — Mapa','4':'Opção 4 — Minimal'};
 function buildFolha(op){
-  var f=document.createElement('div'); f.className='folha'+(op==='2'?' logoc':'')+(op==='1'?' artefull':'');
+  var lp=(window.IGTimbrado&&IGTimbrado.logoPos)?IGTimbrado.logoPos(op):'dir';
+  var cls='folha'+(op==='1'?' artefull':'')+(lp==='centro'?' logoc':'')+(lp==='esq'?' logol':'');
+  var f=document.createElement('div'); f.className=cls;
   var a=document.createElement('div'); a.className='arte'; a.appendChild(IGTimbrado.arte(op)); f.appendChild(a);
   var l=document.createElement('div'); l.className='logo';
   var img=document.createElement('img'); img.src='assets/logo.svg?v=18'; img.alt='Império Global'; l.appendChild(img);
@@ -255,7 +258,7 @@ function montarGrid(ops){
   var grid=document.getElementById('tgrid');
   ops.forEach(function(op){
     var card=document.createElement('div'); card.className='tcard';
-    var h=document.createElement('h3'); h.textContent=TNOMES[op]||('Opção '+op); card.appendChild(h);
+    var h=document.createElement('h3'); h.textContent='Opção '+op+' — '+((window.IGTimbrado&&IGTimbrado.nome)?IGTimbrado.nome(op):op); card.appendChild(h);
     var prev=document.createElement('div'); prev.className='tprev';
     var folha=buildFolha(op); prev.appendChild(folha); card.appendChild(prev);
     var acts=document.createElement('div'); acts.className='acts';

@@ -45,6 +45,7 @@
   .folha .logo{position:absolute;top:14mm;right:20mm;z-index:2}
   .folha .logo img{display:block;width:52mm;height:auto}
   .folha.logoc .logo{right:auto;left:50%;transform:translateX(-50%)}
+  .folha.logol .logo{right:auto;left:20mm}
   /* Opção 1: arte SEM logo; o logo vetorial oficial entra por cima, na posição da arte */
   .folha.artefull .logo{top:11mm;right:13mm}
   .folha.artefull .logo img{width:58mm}
@@ -74,12 +75,7 @@
 <div class="wrap">
   <div class="painel">
     <h2>Modelo</h2>
-    <div class="ops" id="ops">
-      <div class="op on" data-op="1"><b>1</b>Aprovado<span class="flag">✓ publicado</span></div>
-      <div class="op" data-op="2"><b>2</b>Simétrico<span class="flag">✓ publicado</span></div>
-      <div class="op" data-op="3"><b>3</b>Mapa<span class="flag">✓ publicado</span></div>
-      <div class="op" data-op="4"><b>4</b>Minimal<span class="flag">✓ publicado</span></div>
-    </div>
+    <div class="ops" id="ops"></div>
     <p class="hint">Cada opção é um modelo independente. A <b>1</b> é a arte aprovada; as outras são variações.</p>
 
     <h2>Publicação</h2>
@@ -106,7 +102,7 @@
 </div>
 
 <script src="assets/supabase.js"></script>
-<script src="assets/timbrado-core.js?v=24"></script>
+<script src="assets/timbrado-core.js?v=25"></script>
 <script src="assets/db.js?v=17"></script>
 <script>
 (function(){
@@ -120,6 +116,11 @@
   var store=carregar(), opAtual='1';
   var aprovados={};   // op -> bool (estado no banco)
 
+  // monta as abas de modelo dinamicamente
+  opsBox.innerHTML = IGTimbrado.opcoes.map(function(op){
+    return '<div class="op'+(op==='1'?' on':'')+'" data-op="'+op+'"><b>'+op+'</b>'+IGTimbrado.nome(op)+'<span class="flag">✓ publicado</span></div>';
+  }).join('');
+
   function refletirFlags(){
     [].forEach.call(opsBox.querySelectorAll('.op'),function(o){
       o.classList.toggle('pub', !!aprovados[o.getAttribute('data-op')]);
@@ -128,8 +129,10 @@
   }
   function pintar(){
     arteBox.innerHTML=''; arteBox.appendChild(IGTimbrado.arte(opAtual));
-    folha.classList.toggle('artefull', opAtual==='1');   // Opção 1 = arte aprovada (logo incluído)
-    folha.classList.toggle('logoc', opAtual==='2');
+    var lp=IGTimbrado.logoPos(opAtual);
+    folha.classList.toggle('artefull', opAtual==='1');   // Opção 1 = arte aprovada (logo por cima, posição própria)
+    folha.classList.toggle('logoc', lp==='centro');
+    folha.classList.toggle('logol', lp==='esq');
     doc.innerHTML = (store[opAtual] && store[opAtual].html) || '';
     aprvChk.checked = !!aprovados[opAtual];
   }
