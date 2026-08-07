@@ -140,7 +140,7 @@
       var img = document.createElement('img');
       img.src = 'assets/timbrado-op1.png?v=19';
       img.alt = 'Papel timbrado Império Global';
-      img.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:fill;');
+      img.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:center;');
       return img;
     }
     return (MODELOS[op] || MODELOS['2'])();
