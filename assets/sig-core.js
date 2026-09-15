@@ -91,8 +91,9 @@
   if (!cfg.usaRodape) return '';
   var fr = (p.idioma === 'fr');          // Bélgica: rodapé em francês (nº belga no lugar do NIF, sem Alvará)
   var semLegais = !!p.esconder_legais;   // por pessoa: esconder o bloco legal (fica só site + telefone)
+  var semTel = !!p.esconder_tel;         // por pessoa: esconder o telefone do rodapé (sem número nenhum)
   // telefone: o da pessoa; em PT cai no número padrão da empresa se vazio; em FR fica vazio (nunca usa nº PT)
-  var telRod = (p.tel && String(p.tel).trim()) ? String(p.tel).trim() : (fr ? '' : (cfg.telGeral || ''));
+  var telRod = semTel ? '' : ((p.tel && String(p.tel).trim()) ? String(p.tel).trim() : (fr ? '' : (cfg.telGeral || '')));
   var telLbl = fr ? 'Tél. ' : 'Telf. ';
   var inst = (fr
     ? [
