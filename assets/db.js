@@ -123,6 +123,20 @@
         .then(function (res) { if (res.error) throw res.error; return true; });
     },
 
+    // edição pela master (Soraia): altera nome/cargo/email/tel de uma assinatura
+    editar: function (p, key) {
+      var k = (key != null) ? String(key) : getKey();
+      return sb.rpc('ig_editar_pessoa', {
+        p_codigo: p.codigo,
+        p_nome: p.nome != null ? String(p.nome) : '',
+        p_cargo: p.cargo != null ? String(p.cargo) : '',
+        p_email: p.email != null ? String(p.email) : '',
+        p_tel: p.tel != null ? String(p.tel) : '',
+        p_esconder_tel: !!p.esconder_tel,
+        p_key: k
+      }).then(function (res) { if (res.error) throw res.error; return true; });
+    },
+
     // ---- papel timbrado: quais opções estão aprovadas (publicadas p/ a cliente) ----
     timbradoListar: function () {
       return sb.from('ig_timbrado').select('op,nome,aprovado,ordem').order('ordem', { ascending: true })

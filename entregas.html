@@ -47,6 +47,13 @@
  .acts button.lk{background:#EEF3F8;color:#013F80;border:1px solid #CBD5E0}
  .acts button.lk:hover{background:#DFE9F3}
  .dica{color:#9AA3AD;font-size:12px;margin-top:10px}
+ /* formulário de edição (master) */
+ .edf{margin-top:12px}
+ .edf label{display:block;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:#79828D;margin:10px 0 4px}
+ .edf label.ck{display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;color:#2B2F36;margin-top:14px}
+ .edf input[type=text],.edf input:not([type]){width:100%}
+ .edf input{width:100%;padding:9px 11px;border:1px solid #CBD5E0;border-radius:6px;font:inherit;font-size:14px;box-sizing:border-box}
+ .edf input[type=checkbox]{width:18px;height:18px;accent-color:#013F80}
  .estado{color:#79828D;font-size:14px;padding:26px 0}
  footer{margin-top:44px;padding-top:16px;border-top:1px solid #E1E7EC;color:#9AA3AD;font-size:12px}
  /* separadores (abas) */
@@ -135,7 +142,7 @@
 <script src="assets/supabase.js"></script>
 <script src="assets/sig-core.js?v=16"></script>
 <script src="assets/timbrado-core.js?v=26"></script>
-<script src="assets/db.js?v=17"></script>
+<script src="assets/db.js?v=18"></script>
 <script>
 var esc=IGCore.esc;
 var CFG=null, PESSOAS=[], VIS=[];
@@ -180,7 +187,47 @@ function verPreview(i){
     '<div class="acts">'+
       '<button onclick="copiarAssinatura('+i+',this)">Copiar a assinatura</button>'+
       (p.token?'<button class="lk" onclick="copiarLink(\''+esc(p.token)+'\',this)">Copiar link individual</button>':'')+
+      (KEY?'<button class="lk" onclick="editarPreview('+i+')">✎ Editar dados</button>':'')+
     '</div>';
+}
+
+// ---------- edição pela master (Soraia): editar dados no próprio link ----------
+function valId(id){ var e=document.getElementById(id); return e?e.value:''; }
+function editarPreview(i){
+  var p=VIS[i]; if(!p)return;
+  var trs=document.querySelectorAll('#tabela tbody tr');
+  for(var k=0;k<trs.length;k++) trs[k].classList.toggle('sel', k===i);
+  document.getElementById('preview').innerHTML=
+    '<div class="pvh">Editar &middot; <span style="color:#0072CE">'+esc(p.codigo||'')+'</span></div>'+
+    '<div class="edf">'+
+      '<label>Nome</label><input id="e_nome" value="'+esc(p.nome||'')+'">'+
+      '<label>Função</label><input id="e_cargo" value="'+esc(p.cargo||'')+'">'+
+      '<label>E-mail</label><input id="e_email" value="'+esc(p.email||'')+'">'+
+      '<label>Telefone</label><input id="e_tel" value="'+esc(p.tel||'')+'" placeholder="+351 …">'+
+      '<label class="ck"><input type="checkbox" id="e_stel"'+(p.esconder_tel?' checked':'')+'> Sem telefone (não mostrar no rodapé)</label>'+
+    '</div>'+
+    '<div class="acts">'+
+      '<button onclick="guardarEdicao('+i+',this)">Guardar alterações</button>'+
+      '<button class="lk" onclick="verPreview('+i+')">Cancelar</button>'+
+    '</div>'+
+    '<div class="dica">As alterações aparecem logo aqui e em quem já tem o link individual. O código não muda.</div>';
+}
+function guardarEdicao(i,btn){
+  var p=VIS[i]; if(!p)return;
+  var novo={ codigo:p.codigo, nome:valId('e_nome').trim(), cargo:valId('e_cargo').trim(),
+             email:valId('e_email').trim(), tel:valId('e_tel').trim(),
+             esconder_tel:(document.getElementById('e_stel')||{}).checked||false };
+  if(!novo.nome){ alert('O nome não pode ficar vazio.'); return; }
+  btn.textContent='A guardar…'; btn.disabled=true;
+  IGDB.editar(novo, KEY).then(function(){
+    // atualiza o objeto (partilhado entre VIS e PESSOAS)
+    p.nome=novo.nome; p.cargo=novo.cargo; p.email=novo.email; p.tel=novo.tel; p.esconder_tel=novo.esconder_tel;
+    renderMaster();
+    verPreview(i);
+  }).catch(function(e){
+    btn.textContent='Guardar alterações'; btn.disabled=false;
+    alert('Não foi possível guardar. '+((e&&e.message)||'Tente novamente.'));
+  });
 }
 
 // ---------- visão master (todas) ----------
