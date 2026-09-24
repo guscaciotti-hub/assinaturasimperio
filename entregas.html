@@ -58,6 +58,38 @@
  .topbar{display:flex;justify-content:flex-end;margin:0 0 10px}
  .topbar .novo{background:#1a9c53;color:#fff;border:0;border-radius:6px;padding:10px 16px;font:inherit;font-size:13px;font-weight:bold;cursor:pointer}
  .topbar .novo:hover{background:#158043}
+ .edf textarea{width:100%;padding:9px 11px;border:1px solid #CBD5E0;border-radius:6px;font:inherit;font-size:14px;box-sizing:border-box;resize:vertical;line-height:1.5}
+ .edf select{width:100%;padding:9px 11px;border:1px solid #CBD5E0;border-radius:6px;font:inherit;font-size:14px;box-sizing:border-box;background:#fff}
+ /* kanban */
+ .kb-board{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 10px;align-items:flex-start}
+ .kb-col{flex:0 0 270px;max-width:270px;background:#EEF2F6;border:1px solid #E1E7EC;border-radius:10px;padding:10px}
+ .kb-colh{font-size:12px;font-weight:bold;letter-spacing:.4px;text-transform:uppercase;color:#013F80;padding:4px 4px 10px;display:flex;align-items:center;gap:7px}
+ .kb-cont{background:#013F80;color:#fff;border-radius:10px;font-size:11px;padding:1px 7px;font-weight:bold}
+ .kb-copy_ok .kb-colh,.kb-post_ok .kb-colh{color:#158043}
+ .kb-copy_ok .kb-cont,.kb-post_ok .kb-cont{background:#1a9c53}
+ .kb-cards{display:flex;flex-direction:column;gap:10px;min-height:24px}
+ .kb-vazio{color:#AEB6BF;text-align:center;font-size:20px;padding:10px 0}
+ .kb-card{background:#fff;border:1px solid #E1E7EC;border-radius:8px;padding:11px 12px;box-shadow:0 1px 2px rgba(20,30,45,.05)}
+ .kb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+ .kb-acts{display:flex;gap:4px}
+ .kb-ic{background:none;border:0;cursor:pointer;font-size:14px;color:#79828D;padding:2px 4px;border-radius:4px;line-height:1}
+ .kb-ic:hover{background:#EEF3F8;color:#013F80}
+ .kb-badge{font-size:10.5px;font-weight:bold;letter-spacing:.4px;text-transform:uppercase;padding:2px 8px;border-radius:10px;color:#fff}
+ .kb-badge.li{background:#0A66C2} .kb-badge.blog{background:#B4530A}
+ .kb-tit{font-size:14px;font-weight:bold;color:#1c2530;margin-bottom:6px;word-break:break-word}
+ .kb-copy{font-size:12.5px;color:#3a4450;line-height:1.5;white-space:normal;max-height:180px;overflow:auto;word-break:break-word;background:#F8FAFC;border:1px solid #EEF2F6;border-radius:6px;padding:8px 9px}
+ .kb-link{display:inline-block;margin-top:8px;font-size:12px;color:#0072CE;text-decoration:none}
+ .kb-link:hover{text-decoration:underline}
+ .kb-nav{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
+ .kb-mv{flex:1;background:#013F80;color:#fff;border:0;border-radius:6px;padding:7px 0;font-size:13px;cursor:pointer}
+ .kb-mv:hover{background:#0072CE}
+ .kb-mv.ph{background:transparent;pointer-events:none}
+ /* modal do kanban */
+ #kbmodal{position:fixed;inset:0;z-index:70;display:none}
+ #kbmodal.on{display:block}
+ #kbmodal .kbm-bg{position:absolute;inset:0;background:rgba(15,23,32,.55)}
+ #kbmodal .kbm-cx{position:relative;max-width:560px;margin:34px auto;background:#fff;border-radius:12px;padding:20px 22px 22px;box-shadow:0 18px 50px rgba(0,0,0,.35);max-height:calc(100vh - 68px);overflow:auto}
+ #kbmodal h3{margin:0 0 6px;font-size:16px;color:#013F80}
  .estado{color:#79828D;font-size:14px;padding:26px 0}
  footer{margin-top:44px;padding-top:16px;border-top:1px solid #E1E7EC;color:#9AA3AD;font-size:12px}
  /* separadores (abas) */
@@ -134,6 +166,7 @@
 
 <div id="conteudo"><div class="estado" id="estado">A carregar…</div></div>
 <div id="timbrados" style="display:none"></div>
+<div id="kanban" style="display:none"></div>
 
 <footer>Em caso de dúvida ou de alteração de dados, contacte o departamento responsável.<br>Produzido pela Evoluze Marketing.</footer>
 </div>
@@ -141,12 +174,13 @@
 <div id="clipHolder" style="position:fixed;left:-99999px;top:0;background:#fff"></div>
 <div id="printArea"></div>
 <div id="editor"></div>
+<div id="kbmodal"></div>
 
 <script src="assets/logo.js?v=15"></script>
 <script src="assets/supabase.js"></script>
 <script src="assets/sig-core.js?v=16"></script>
 <script src="assets/timbrado-core.js?v=26"></script>
-<script src="assets/db.js?v=19"></script>
+<script src="assets/db.js?v=20"></script>
 <script>
 var esc=IGCore.esc;
 var CFG=null, PESSOAS=[], VIS=[];
@@ -419,19 +453,136 @@ function imprimirEditor(){
 function initTabs(){
   var tb=document.getElementById('tabbar'); tb.style.display='flex';
   tb.innerHTML='<button id="tabA" class="on" onclick="mostrarTab(\'ass\')">Assinaturas</button>'+
-               '<button id="tabT" onclick="mostrarTab(\'timb\')">Papel timbrado</button>';
+               '<button id="tabT" onclick="mostrarTab(\'timb\')">Papel timbrado</button>'+
+               '<button id="tabK" onclick="mostrarTab(\'kanban\')">Postagens</button>';
   document.getElementById('tit').textContent='Design institucional — Império Global';
-  document.getElementById('sub').textContent='Império Global Telecomunicações · assinaturas de e-mail e papel timbrado';
+  document.getElementById('sub').textContent='Império Global Telecomunicações · assinaturas, papel timbrado e aprovação de postagens';
 }
 function mostrarTab(n){
-  var ass=(n==='ass');
+  var ass=(n==='ass'), timb=(n==='timb'), kan=(n==='kanban');
   document.getElementById('instr').style.display=ass?'':'none';
   document.getElementById('buscaBox').style.display=(ass&&PESSOAS.length>8)?'':'none';
   document.getElementById('conteudo').style.display=ass?'':'none';
-  document.getElementById('timbrados').style.display=ass?'none':'';
+  document.getElementById('timbrados').style.display=timb?'':'none';
+  document.getElementById('kanban').style.display=kan?'':'none';
   document.getElementById('tabA').classList.toggle('on',ass);
-  document.getElementById('tabT').classList.toggle('on',!ass);
-  if(!ass) renderTimbrados();
+  document.getElementById('tabT').classList.toggle('on',timb);
+  var tk=document.getElementById('tabK'); if(tk) tk.classList.toggle('on',kan);
+  if(timb) renderTimbrados();
+  if(kan) renderKanban();
+}
+
+// ---------- kanban de aprovação de postagens ----------
+var KCOLS=[
+  {id:'copy_aprov', nome:'Copy para aprovação'},
+  {id:'copy_ok',    nome:'Copy aprovada'},
+  {id:'post_aprov', nome:'Postagem para aprovação'},
+  {id:'post_ok',    nome:'Postagem aprovada'}
+];
+var KB=[], KB_PRONTO=false;
+function nl2br(t){ return esc(t).replace(/\n/g,'<br>'); }
+function colIdx(id){ for(var i=0;i<KCOLS.length;i++) if(KCOLS[i].id===id) return i; return 0; }
+function renderKanban(){
+  var box=document.getElementById('kanban');
+  if(!KB_PRONTO){
+    box.innerHTML='<p class="tintro">A carregar…</p>';
+    IGDB.kanbanListar(KEY).then(function(list){ KB=list||[]; KB_PRONTO=true; pintarKanban(); })
+      .catch(function(){ box.innerHTML='<p class="tintro">Não foi possível carregar o quadro. Atualize a página.</p>'; });
+    return;
+  }
+  pintarKanban();
+}
+function pintarKanban(){
+  var box=document.getElementById('kanban');
+  var cols=KCOLS.map(function(col,ci){
+    var cards=KB.filter(function(c){return (c.coluna||'copy_aprov')===col.id;});
+    var inner=cards.length? cards.map(function(c){return kbCard(c,ci);}).join('')
+                          : '<div class="kb-vazio">—</div>';
+    return '<div class="kb-col kb-'+col.id+'">'+
+             '<div class="kb-colh">'+esc(col.nome)+' <span class="kb-cont">'+cards.length+'</span></div>'+
+             '<div class="kb-cards">'+inner+'</div>'+
+           '</div>';
+  }).join('');
+  box.innerHTML=
+    '<p class="tintro">Fluxo de aprovação de conteúdo. A Evoluze coloca a <b>copy</b> em <b>Copy para aprovação</b>; a cliente aprova passando o cartão para a coluna seguinte. Depois de <b>Copy aprovada</b>, avança para <b>Postagem para aprovação</b> e, por fim, <b>Postagem aprovada</b>. Use as setas ◀ ▶ para mover.</p>'+
+    '<div class="topbar"><button class="novo" onclick="kbNovo()">＋ Nova postagem</button></div>'+
+    '<div class="kb-board">'+cols+'</div>';
+}
+function kbCard(c,ci){
+  var canalBlog=(c.canal==='Blog');
+  var badge='<span class="kb-badge '+(canalBlog?'blog':'li')+'">'+(canalBlog?'Blog':'LinkedIn')+'</span>';
+  var link=c.link? '<a class="kb-link" href="'+esc(c.link)+'" target="_blank" rel="noopener">Abrir referência ↗</a>':'';
+  var esq=ci>0? '<button class="kb-mv" title="Voltar" onclick="kbMover(\''+c.id+'\',-1,this)">◀</button>':'<span class="kb-mv ph"></span>';
+  var dir=ci<KCOLS.length-1? '<button class="kb-mv" title="Avançar" onclick="kbMover(\''+c.id+'\',1,this)">▶</button>':'<span class="kb-mv ph"></span>';
+  return '<div class="kb-card">'+
+    '<div class="kb-top">'+badge+'<div class="kb-acts">'+
+      '<button class="kb-ic" title="Editar" onclick="kbEditar(\''+c.id+'\')">✎</button>'+
+      '<button class="kb-ic" title="Remover" onclick="kbRemover(\''+c.id+'\')">🗑</button>'+
+    '</div></div>'+
+    '<div class="kb-tit">'+(c.titulo? esc(c.titulo):'<i>(sem título)</i>')+'</div>'+
+    '<div class="kb-copy">'+nl2br(c.copy||'')+'</div>'+
+    link+
+    '<div class="kb-nav">'+esq+dir+'</div>'+
+  '</div>';
+}
+function kbMover(id,dir,btn){
+  var c=null; for(var i=0;i<KB.length;i++) if(KB[i].id===id) c=KB[i];
+  if(!c) return;
+  var ci=colIdx(c.coluna), ni=Math.max(0,Math.min(KCOLS.length-1,ci+dir));
+  if(ni===ci) return;
+  var alvo=KCOLS[ni].id, antigo=c.coluna;
+  c.coluna=alvo; pintarKanban();
+  IGDB.kanbanMover(id,alvo,KEY).catch(function(){
+    c.coluna=antigo; pintarKanban(); alert('Não foi possível mover. Tente novamente.');
+  });
+}
+function kbNovo(){ abrirKbModal(null); }
+function kbEditar(id){ var c=null; for(var i=0;i<KB.length;i++) if(KB[i].id===id) c=KB[i]; if(c) abrirKbModal(c); }
+function abrirKbModal(c){
+  var ed=!!c;
+  var m=document.getElementById('kbmodal');
+  m.innerHTML=
+    '<div class="kbm-bg" onclick="kbFechar()"></div>'+
+    '<div class="kbm-cx">'+
+      '<h3>'+(ed?'Editar postagem':'Nova postagem')+'</h3>'+
+      '<div class="edf">'+
+        '<label>Título</label><input id="k_tit" value="'+esc(ed?(c.titulo||''):'')+'" placeholder="Título da postagem">'+
+        '<label>Canal</label><select id="k_canal">'+
+          '<option value="LinkedIn"'+((!ed||c.canal!=='Blog')?' selected':'')+'>LinkedIn</option>'+
+          '<option value="Blog"'+((ed&&c.canal==='Blog')?' selected':'')+'>Blog</option>'+
+        '</select>'+
+        '<label>Copy</label><textarea id="k_copy" rows="8" placeholder="Cole aqui a copy da postagem…">'+esc(ed?(c.copy||''):'')+'</textarea>'+
+        '<label>Link de referência (opcional)</label><input id="k_link" value="'+esc(ed?(c.link||''):'')+'" placeholder="https://… (arte, doc, etc.)">'+
+      '</div>'+
+      '<div class="acts">'+
+        '<button onclick="kbGuardar('+(ed?('\''+c.id+'\''):'null')+',this)">'+(ed?'Guardar':'Criar cartão')+'</button>'+
+        '<button class="lk" onclick="kbFechar()">Cancelar</button>'+
+      '</div>'+
+    '</div>';
+  m.classList.add('on');
+  setTimeout(function(){ var e=document.getElementById('k_tit'); if(e) e.focus(); },50);
+}
+function kbFechar(){ var m=document.getElementById('kbmodal'); m.classList.remove('on'); m.innerHTML=''; }
+function kbGuardar(id,btn){
+  var dados={ titulo:valId('k_tit').trim(), canal:valId('k_canal'),
+              copy:(document.getElementById('k_copy')||{}).value||'', link:valId('k_link').trim() };
+  if(!dados.titulo && !dados.copy.trim()){ alert('Escreva pelo menos o título ou a copy.'); return; }
+  btn.textContent='A guardar…'; btn.disabled=true;
+  var op = id ? IGDB.kanbanEditar(Object.assign({id:id},dados),KEY) : IGDB.kanbanCriar(dados,KEY);
+  op.then(function(row){
+    if(id){ for(var i=0;i<KB.length;i++) if(KB[i].id===id){ KB[i]=row; } }
+    else { KB.push(row); }
+    kbFechar(); pintarKanban();
+  }).catch(function(e){
+    btn.textContent=id?'Guardar':'Criar cartão'; btn.disabled=false;
+    alert('Não foi possível guardar. '+((e&&e.message)||'Tente novamente.'));
+  });
+}
+function kbRemover(id){
+  if(!confirm('Remover este cartão do quadro? Esta ação não pode ser anulada.')) return;
+  var bak=KB.slice();
+  KB=KB.filter(function(c){return c.id!==id;}); pintarKanban();
+  IGDB.kanbanRemover(id,KEY).catch(function(){ KB=bak; pintarKanban(); alert('Não foi possível remover. Tente novamente.'); });
 }
 
 // ---------- visão individual (uma) ----------

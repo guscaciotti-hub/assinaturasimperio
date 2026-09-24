@@ -161,6 +161,44 @@
     timbradoDefinir: function (op, aprovado) {
       return sb.rpc('ig_timbrado_definir', { p_op: String(op), p_aprovado: !!aprovado, p_key: getKey() })
         .then(function (res) { if (res.error) throw res.error; return true; });
+    },
+
+    // ---- kanban de aprovação de postagens (Blog/LinkedIn) ----
+    kanbanListar: function (key) {
+      var k = (key != null) ? String(key) : getKey();
+      return sb.rpc('ig_kanban_listar', { p_key: k })
+        .then(function (res) { if (res.error) throw res.error; return res.data || []; });
+    },
+    kanbanCriar: function (c, key) {
+      var k = (key != null) ? String(key) : getKey();
+      return sb.rpc('ig_kanban_criar', {
+        p_titulo: c.titulo != null ? String(c.titulo) : '',
+        p_canal: c.canal != null ? String(c.canal) : 'LinkedIn',
+        p_copy: c.copy != null ? String(c.copy) : '',
+        p_link: c.link != null ? String(c.link) : '',
+        p_key: k
+      }).then(function (res) { if (res.error) throw res.error; return Array.isArray(res.data) ? res.data[0] : res.data; });
+    },
+    kanbanEditar: function (c, key) {
+      var k = (key != null) ? String(key) : getKey();
+      return sb.rpc('ig_kanban_editar', {
+        p_id: c.id,
+        p_titulo: c.titulo != null ? String(c.titulo) : '',
+        p_canal: c.canal != null ? String(c.canal) : 'LinkedIn',
+        p_copy: c.copy != null ? String(c.copy) : '',
+        p_link: c.link != null ? String(c.link) : '',
+        p_key: k
+      }).then(function (res) { if (res.error) throw res.error; return Array.isArray(res.data) ? res.data[0] : res.data; });
+    },
+    kanbanMover: function (id, coluna, key) {
+      var k = (key != null) ? String(key) : getKey();
+      return sb.rpc('ig_kanban_mover', { p_id: id, p_coluna: String(coluna), p_key: k })
+        .then(function (res) { if (res.error) throw res.error; return Array.isArray(res.data) ? res.data[0] : res.data; });
+    },
+    kanbanRemover: function (id, key) {
+      var k = (key != null) ? String(key) : getKey();
+      return sb.rpc('ig_kanban_remover', { p_id: id, p_key: k })
+        .then(function (res) { if (res.error) throw res.error; return true; });
     }
   };
 
