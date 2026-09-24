@@ -54,6 +54,10 @@
  .edf input[type=text],.edf input:not([type]){width:100%}
  .edf input{width:100%;padding:9px 11px;border:1px solid #CBD5E0;border-radius:6px;font:inherit;font-size:14px;box-sizing:border-box}
  .edf input[type=checkbox]{width:18px;height:18px;accent-color:#013F80}
+ /* barra de ações da lista (master) */
+ .topbar{display:flex;justify-content:flex-end;margin:0 0 10px}
+ .topbar .novo{background:#1a9c53;color:#fff;border:0;border-radius:6px;padding:10px 16px;font:inherit;font-size:13px;font-weight:bold;cursor:pointer}
+ .topbar .novo:hover{background:#158043}
  .estado{color:#79828D;font-size:14px;padding:26px 0}
  footer{margin-top:44px;padding-top:16px;border-top:1px solid #E1E7EC;color:#9AA3AD;font-size:12px}
  /* separadores (abas) */
@@ -142,7 +146,7 @@
 <script src="assets/supabase.js"></script>
 <script src="assets/sig-core.js?v=16"></script>
 <script src="assets/timbrado-core.js?v=26"></script>
-<script src="assets/db.js?v=18"></script>
+<script src="assets/db.js?v=19"></script>
 <script>
 var esc=IGCore.esc;
 var CFG=null, PESSOAS=[], VIS=[];
@@ -266,11 +270,55 @@ function renderMaster(){
   var linhas=VIS.map(linhaTabela).join('');
   document.getElementById('conteudo').innerHTML=
     '<div class="painel"><div class="card" id="preview"></div></div>'+
+    (KEY?'<div class="topbar"><button class="novo" onclick="criarNova()">＋ Nova assinatura</button></div>':'')+
     '<table class="tb" id="tabela"><thead><tr><th>Código</th><th>Nome</th><th>Função</th><th class="chk">Enviado</th><th style="text-align:right">Ações</th></tr></thead>'+
     '<tbody>'+linhas+'</tbody></table>'+
     '<div class="dica"><b id="contador"></b> · Passe o rato numa linha (ou toque em <b>Ver</b>) para pré-visualizar; marque a caixa <b>Enviado</b> quando entregar a cada colaborador.</div>';
   verPreview(0);
   atualizarContador();
+}
+// ---------- criar nova assinatura (master) ----------
+function criarNova(){
+  var trs=document.querySelectorAll('#tabela tbody tr');
+  for(var k=0;k<trs.length;k++) trs[k].classList.remove('sel');
+  document.getElementById('preview').innerHTML=
+    '<div class="pvh">Nova assinatura</div>'+
+    '<div class="edf">'+
+      '<label>Nome</label><input id="n_nome" placeholder="Nome Apelido">'+
+      '<label>Função</label><input id="n_cargo" placeholder="Departamento / cargo">'+
+      '<label>E-mail</label><input id="n_email" placeholder="nome@imperioglobal.eu">'+
+      '<label>Telefone</label><input id="n_tel" placeholder="+351 …">'+
+      '<label class="ck"><input type="checkbox" id="n_stel"> Sem telefone (não mostrar no rodapé)</label>'+
+    '</div>'+
+    '<div class="acts">'+
+      '<button onclick="guardarNova(this)">Criar assinatura</button>'+
+      '<button class="lk" onclick="verPreview(VIS.__sel||0)">Cancelar</button>'+
+    '</div>'+
+    '<div class="dica">O código (IG-…) e o link individual são gerados automaticamente. A nova assinatura aparece logo na lista.</div>';
+  setTimeout(function(){ var e=document.getElementById('n_nome'); if(e) e.focus(); },50);
+}
+function guardarNova(btn){
+  var novo={ nome:valId('n_nome').trim(), cargo:valId('n_cargo').trim(),
+             email:valId('n_email').trim(), tel:valId('n_tel').trim(),
+             esconder_tel:(document.getElementById('n_stel')||{}).checked||false };
+  if(!novo.nome){ alert('Escreva o nome da pessoa.'); return; }
+  btn.textContent='A criar…'; btn.disabled=true;
+  IGDB.criar(novo, KEY).then(function(row){
+    PESSOAS.push(row);
+    PESSOAS.sort(function(a,b){ return String(a.codigo).localeCompare(String(b.codigo),'pt',{numeric:true}); });
+    filtrarManterZero();
+    var idx=VIS.map(function(p){return p.codigo;}).indexOf(row.codigo);
+    if(idx<0) idx=0;
+    verPreview(idx);
+  }).catch(function(e){
+    btn.textContent='Criar assinatura'; btn.disabled=false;
+    alert('Não foi possível criar. '+((e&&e.message)||'Tente novamente.'));
+  });
+}
+// re-render mantendo a busca atual (se houver)
+function filtrarManterZero(){
+  var bq=document.getElementById('busca');
+  if(bq && (bq.value||'').trim()){ filtrar(); } else { VIS=PESSOAS.slice(); renderMaster(); }
 }
 function filtrar(){
   var q=(document.getElementById('busca').value||'').trim().toLowerCase();
@@ -301,7 +349,7 @@ function montarGrid(ops){
     box.innerHTML='<p class="tintro">Ainda não há folhas timbradas publicadas. Assim que forem aprovadas, aparecem aqui para descarregar.</p>';
     return;
   }
-  box.innerHTML='<p class="tintro">Escolha um modelo e clique em <b>Baixar PDF</b>. Na janela de impressão: destino <b>Guardar como PDF</b>, tamanho <b>A4</b>, margens <b>Nenhuma</b>. Toda a arte é vetorial — sai nítida na impressão.</p><div class="tgrid" id="tgrid"></div>';
+  box.innerHTML='<p class="tintro">Escolha um modelo. <b>Abrir no Word</b> descarrega o timbrado como documento <b>.docx</b> — abre no Word, escreve o texto, imprime e guarda normalmente no computador. O timbrado fica de fundo em todas as páginas. Também pode escrever aqui no site ou baixar em PDF em branco.</p><div class="tgrid" id="tgrid"></div>';
   var grid=document.getElementById('tgrid');
   ops.forEach(function(op){
     var card=document.createElement('div'); card.className='tcard';
@@ -309,8 +357,9 @@ function montarGrid(ops){
     var prev=document.createElement('div'); prev.className='tprev';
     var folha=buildFolha(op); prev.appendChild(folha); card.appendChild(prev);
     var acts=document.createElement('div'); acts.className='acts';
-    acts.innerHTML='<button onclick="abrirEditor(\''+op+'\')">Escrever documento</button>'+
-                   '<button class="lk" onclick="baixarTimbrado(\''+op+'\',this)">Baixar em branco</button>';
+    acts.innerHTML='<button onclick="baixarWord(\''+op+'\')">Abrir no Word (.docx)</button>'+
+                   '<button class="lk" onclick="abrirEditor(\''+op+'\')">Escrever no site</button>'+
+                   '<button class="lk" onclick="baixarTimbrado(\''+op+'\',this)">PDF em branco</button>';
     card.appendChild(acts); grid.appendChild(card);
     var s=prev.clientWidth/793.7; folha.style.transform='scale('+s+')';
   });
@@ -324,6 +373,12 @@ function renderTimbrados(){
     var ops=(list||[]).filter(function(r){return r.aprovado;}).map(function(r){return r.op;});
     montarGrid(ops);
   }).catch(function(){ montarGrid([]); });
+}
+function baixarWord(op){
+  var a=document.createElement('a');
+  a.href='assets/timbrado/timbrado-op'+op+'.docx?v=1';
+  a.download='Timbrado Imperio Global - Opcao '+op+'.docx';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 function baixarTimbrado(op){
   var pa=document.getElementById('printArea'); pa.innerHTML=''; pa.appendChild(buildFolha(op));

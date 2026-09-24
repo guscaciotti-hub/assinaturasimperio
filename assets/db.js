@@ -123,6 +123,22 @@
         .then(function (res) { if (res.error) throw res.error; return true; });
     },
 
+    // criação pela master (Soraia): cria uma nova assinatura (código sequencial + token automáticos)
+    criar: function (p, key) {
+      var k = (key != null) ? String(key) : getKey();
+      return sb.rpc('ig_criar_pessoa', {
+        p_nome: p.nome != null ? String(p.nome) : '',
+        p_cargo: p.cargo != null ? String(p.cargo) : '',
+        p_email: p.email != null ? String(p.email) : '',
+        p_tel: p.tel != null ? String(p.tel) : '',
+        p_esconder_tel: !!p.esconder_tel,
+        p_key: k
+      }).then(function (res) {
+        if (res.error) throw res.error;
+        return Array.isArray(res.data) ? res.data[0] : res.data;
+      });
+    },
+
     // edição pela master (Soraia): altera nome/cargo/email/tel de uma assinatura
     editar: function (p, key) {
       var k = (key != null) ? String(key) : getKey();
