@@ -176,6 +176,7 @@
         p_canal: c.canal != null ? String(c.canal) : 'LinkedIn',
         p_copy: c.copy != null ? String(c.copy) : '',
         p_link: c.link != null ? String(c.link) : '',
+        p_imagem: c.imagem != null ? String(c.imagem) : '',
         p_key: k
       }).then(function (res) { if (res.error) throw res.error; return Array.isArray(res.data) ? res.data[0] : res.data; });
     },
@@ -187,6 +188,7 @@
         p_canal: c.canal != null ? String(c.canal) : 'LinkedIn',
         p_copy: c.copy != null ? String(c.copy) : '',
         p_link: c.link != null ? String(c.link) : '',
+        p_imagem: c.imagem != null ? String(c.imagem) : '',
         p_key: k
       }).then(function (res) { if (res.error) throw res.error; return Array.isArray(res.data) ? res.data[0] : res.data; });
     },

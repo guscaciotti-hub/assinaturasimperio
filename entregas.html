@@ -90,6 +90,50 @@
  #kbmodal .kbm-bg{position:absolute;inset:0;background:rgba(15,23,32,.55)}
  #kbmodal .kbm-cx{position:relative;max-width:560px;margin:34px auto;background:#fff;border-radius:12px;padding:20px 22px 22px;box-shadow:0 18px 50px rgba(0,0,0,.35);max-height:calc(100vh - 68px);overflow:auto}
  #kbmodal h3{margin:0 0 6px;font-size:16px;color:#013F80}
+ /* campo de imagem no modal */
+ .imgfield{display:flex;gap:12px;align-items:flex-start}
+ .imgwrap{width:120px;height:120px;flex:none;border:1px solid #CBD5E0;border-radius:8px;overflow:hidden;background:#F4F7FA;display:flex;align-items:center;justify-content:center}
+ .imgwrap img{width:100%;height:100%;object-fit:cover;display:block}
+ .imgvazio{color:#AEB6BF;font-size:12px;text-align:center;padding:0 6px}
+ .imgbtns{display:flex;flex-direction:column;gap:8px;padding-top:2px}
+ .imgbtn{display:inline-block;background:#EEF3F8;color:#013F80;border:1px solid #CBD5E0;border-radius:6px;padding:8px 12px;font:inherit;font-size:13px;font-weight:bold;cursor:pointer;text-align:center}
+ .imgbtn:hover{background:#DFE9F3}
+ .imgbtn.rem{background:#fff;color:#B4530A;border-color:#E3C4A6}
+ .imgbtn input[type=file]{display:none}
+ /* miniatura no cartão + botão preview */
+ .kb-thumb{margin:0 0 8px;border-radius:6px;overflow:hidden;border:1px solid #EEF2F6}
+ .kb-thumb img{width:100%;display:block;max-height:150px;object-fit:cover}
+ .kb-prevbtn{display:block;width:100%;margin-top:9px;background:#EEF3F8;color:#013F80;border:1px solid #CBD5E0;border-radius:6px;padding:8px 0;font:inherit;font-size:12.5px;font-weight:bold;cursor:pointer}
+ .kb-prevbtn:hover{background:#DFE9F3}
+ /* overlay de pré-visualização */
+ #kbprev{position:fixed;inset:0;z-index:80;display:none}
+ #kbprev.on{display:block}
+ #kbprev .kbp-bg{position:absolute;inset:0;background:rgba(15,23,32,.6)}
+ #kbprev .kbp-cx{position:relative;max-width:600px;margin:26px auto;background:#F4F7FA;border-radius:12px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.4);max-height:calc(100vh - 52px);display:flex;flex-direction:column}
+ #kbprev .kbp-bar{display:flex;align-items:center;justify-content:space-between;background:#013F80;color:#fff;padding:11px 16px;font-size:13px;font-weight:bold}
+ #kbprev .kbp-x{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:6px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:bold;cursor:pointer}
+ #kbprev .kbp-x:hover{background:rgba(255,255,255,.28)}
+ #kbprev .kbp-scroll{overflow:auto;padding:18px}
+ /* mock LinkedIn */
+ .li-post{background:#fff;border:1px solid #E1E7EC;border-radius:10px;overflow:hidden;max-width:540px;margin:0 auto;box-shadow:0 1px 3px rgba(20,30,45,.08)}
+ .li-head{display:flex;align-items:center;gap:10px;padding:13px 14px 6px}
+ .li-av{width:48px;height:48px;border-radius:8px;border:1px solid #E1E7EC;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none}
+ .li-av img{width:88%;height:auto;display:block}
+ .li-nome{font-weight:bold;font-size:14px;color:#1c2530;line-height:1.2}
+ .li-sub{font-size:12px;color:#79828D}
+ .li-txt{padding:4px 14px 12px}
+ .li-tit{font-weight:bold;font-size:15px;color:#1c2530;margin-bottom:6px}
+ .li-copy{font-size:13.5px;color:#2b3540;line-height:1.55;white-space:normal;word-break:break-word}
+ .li-img{background:#0b1622;border-top:1px solid #E1E7EC;border-bottom:1px solid #E1E7EC}
+ .li-img img{width:100%;display:block}
+ .li-bar{display:flex;justify-content:space-around;padding:9px 6px;color:#79828D;font-size:12.5px;font-weight:bold}
+ /* mock Blog */
+ .bl-post{background:#fff;border:1px solid #E1E7EC;border-radius:10px;overflow:hidden;max-width:560px;margin:0 auto;box-shadow:0 1px 3px rgba(20,30,45,.08)}
+ .bl-hero img{width:100%;display:block;max-height:300px;object-fit:cover}
+ .bl-body{padding:20px 22px 26px}
+ .bl-kicker{font-size:11.5px;letter-spacing:.6px;text-transform:uppercase;color:#0072CE;font-weight:bold;margin-bottom:8px}
+ .bl-tit{font-size:24px;line-height:1.25;color:#101a26;margin:0 0 14px;font-family:Georgia,"Times New Roman",serif}
+ .bl-copy{font-size:15px;line-height:1.7;color:#2b3540;white-space:normal;word-break:break-word;font-family:Georgia,"Times New Roman",serif}
  .estado{color:#79828D;font-size:14px;padding:26px 0}
  footer{margin-top:44px;padding-top:16px;border-top:1px solid #E1E7EC;color:#9AA3AD;font-size:12px}
  /* separadores (abas) */
@@ -175,12 +219,13 @@
 <div id="printArea"></div>
 <div id="editor"></div>
 <div id="kbmodal"></div>
+<div id="kbprev"></div>
 
 <script src="assets/logo.js?v=15"></script>
 <script src="assets/supabase.js"></script>
 <script src="assets/sig-core.js?v=16"></script>
 <script src="assets/timbrado-core.js?v=26"></script>
-<script src="assets/db.js?v=20"></script>
+<script src="assets/db.js?v=21"></script>
 <script>
 var esc=IGCore.esc;
 var CFG=null, PESSOAS=[], VIS=[];
@@ -395,9 +440,19 @@ function montarGrid(ops){
                    '<button class="lk" onclick="abrirEditor(\''+op+'\')">Escrever no site</button>'+
                    '<button class="lk" onclick="baixarTimbrado(\''+op+'\',this)">PDF em branco</button>';
     card.appendChild(acts); grid.appendChild(card);
-    var s=prev.clientWidth/793.7; folha.style.transform='scale('+s+')';
   });
+  // escala as prévias depois do layout (aspect-ratio pode ainda não ter resolvido)
+  requestAnimationFrame(function(){ requestAnimationFrame(escalarPrevias); });
 }
+function escalarPrevias(){
+  var prevs=document.querySelectorAll('#tgrid .tprev');
+  for(var i=0;i<prevs.length;i++){
+    var folha=prevs[i].querySelector('.folha'); if(!folha) continue;
+    var w=prevs[i].clientWidth; if(!w) continue;
+    folha.style.transform='scale('+(w/793.7)+')';
+  }
+}
+window.addEventListener('resize', function(){ if(document.getElementById('timbrados').style.display!=='none') escalarPrevias(); });
 function renderTimbrados(){
   var box=document.getElementById('timbrados');
   if(box.getAttribute('data-pronto')) return;   // só monta uma vez
@@ -468,7 +523,7 @@ function mostrarTab(n){
   document.getElementById('tabA').classList.toggle('on',ass);
   document.getElementById('tabT').classList.toggle('on',timb);
   var tk=document.getElementById('tabK'); if(tk) tk.classList.toggle('on',kan);
-  if(timb) renderTimbrados();
+  if(timb){ renderTimbrados(); requestAnimationFrame(function(){ requestAnimationFrame(escalarPrevias); }); }
   if(kan) renderKanban();
 }
 
@@ -508,20 +563,25 @@ function pintarKanban(){
     '<div class="topbar"><button class="novo" onclick="kbNovo()">＋ Nova postagem</button></div>'+
     '<div class="kb-board">'+cols+'</div>';
 }
+function kbGet(id){ for(var i=0;i<KB.length;i++) if(KB[i].id===id) return KB[i]; return null; }
 function kbCard(c,ci){
   var canalBlog=(c.canal==='Blog');
   var badge='<span class="kb-badge '+(canalBlog?'blog':'li')+'">'+(canalBlog?'Blog':'LinkedIn')+'</span>';
+  var thumb=c.imagem? '<div class="kb-thumb"><img src="'+c.imagem+'" alt=""></div>':'';
   var link=c.link? '<a class="kb-link" href="'+esc(c.link)+'" target="_blank" rel="noopener">Abrir referência ↗</a>':'';
   var esq=ci>0? '<button class="kb-mv" title="Voltar" onclick="kbMover(\''+c.id+'\',-1,this)">◀</button>':'<span class="kb-mv ph"></span>';
   var dir=ci<KCOLS.length-1? '<button class="kb-mv" title="Avançar" onclick="kbMover(\''+c.id+'\',1,this)">▶</button>':'<span class="kb-mv ph"></span>';
   return '<div class="kb-card">'+
     '<div class="kb-top">'+badge+'<div class="kb-acts">'+
+      '<button class="kb-ic" title="Pré-visualizar" onclick="abrirPreview(kbGet(\''+c.id+'\'))">👁</button>'+
       '<button class="kb-ic" title="Editar" onclick="kbEditar(\''+c.id+'\')">✎</button>'+
       '<button class="kb-ic" title="Remover" onclick="kbRemover(\''+c.id+'\')">🗑</button>'+
     '</div></div>'+
     '<div class="kb-tit">'+(c.titulo? esc(c.titulo):'<i>(sem título)</i>')+'</div>'+
+    thumb+
     '<div class="kb-copy">'+nl2br(c.copy||'')+'</div>'+
     link+
+    '<button class="kb-prevbtn" onclick="abrirPreview(kbGet(\''+c.id+'\'))">👁 Ver como fica a postagem</button>'+
     '<div class="kb-nav">'+esq+dir+'</div>'+
   '</div>';
 }
@@ -536,10 +596,12 @@ function kbMover(id,dir,btn){
     c.coluna=antigo; pintarKanban(); alert('Não foi possível mover. Tente novamente.');
   });
 }
+var kbImg='';   // imagem principal (data URL) do cartão em edição
 function kbNovo(){ abrirKbModal(null); }
 function kbEditar(id){ var c=null; for(var i=0;i<KB.length;i++) if(KB[i].id===id) c=KB[i]; if(c) abrirKbModal(c); }
 function abrirKbModal(c){
   var ed=!!c;
+  kbImg = ed ? (c.imagem||'') : '';
   var m=document.getElementById('kbmodal');
   m.innerHTML=
     '<div class="kbm-bg" onclick="kbFechar()"></div>'+
@@ -552,20 +614,61 @@ function abrirKbModal(c){
           '<option value="Blog"'+((ed&&c.canal==='Blog')?' selected':'')+'>Blog</option>'+
         '</select>'+
         '<label>Copy</label><textarea id="k_copy" rows="8" placeholder="Cole aqui a copy da postagem…">'+esc(ed?(c.copy||''):'')+'</textarea>'+
+        '<label>Imagem principal da postagem</label>'+
+        '<div class="imgfield">'+
+          '<div id="k_imgwrap" class="imgwrap"></div>'+
+          '<div class="imgbtns">'+
+            '<label class="imgbtn">Escolher imagem<input type="file" id="k_imgfile" accept="image/*" onchange="kbSetImg(this)"></label>'+
+            '<button type="button" class="imgbtn rem" id="k_imgrem" onclick="kbRemImg()">Remover imagem</button>'+
+          '</div>'+
+        '</div>'+
         '<label>Link de referência (opcional)</label><input id="k_link" value="'+esc(ed?(c.link||''):'')+'" placeholder="https://… (arte, doc, etc.)">'+
       '</div>'+
       '<div class="acts">'+
         '<button onclick="kbGuardar('+(ed?('\''+c.id+'\''):'null')+',this)">'+(ed?'Guardar':'Criar cartão')+'</button>'+
+        '<button class="lk" onclick="previewFromForm()">👁 Pré-visualizar</button>'+
         '<button class="lk" onclick="kbFechar()">Cancelar</button>'+
       '</div>'+
     '</div>';
   m.classList.add('on');
+  pintarImgField();
   setTimeout(function(){ var e=document.getElementById('k_tit'); if(e) e.focus(); },50);
+}
+function pintarImgField(){
+  var w=document.getElementById('k_imgwrap'), rem=document.getElementById('k_imgrem');
+  if(!w) return;
+  if(kbImg){ w.innerHTML='<img src="'+kbImg+'" alt="prévia">'; if(rem) rem.style.display=''; }
+  else { w.innerHTML='<div class="imgvazio">Sem imagem</div>'; if(rem) rem.style.display='none'; }
+}
+function kbSetImg(inp){
+  var f=inp.files&&inp.files[0]; if(!f) return;
+  if(!/^image\//.test(f.type)){ alert('Selecione um ficheiro de imagem.'); return; }
+  var w=document.getElementById('k_imgwrap'); if(w) w.innerHTML='<div class="imgvazio">A processar…</div>';
+  lerImagemResize(f, function(dataUrl){ kbImg=dataUrl; pintarImgField(); });
+  inp.value='';
+}
+function kbRemImg(){ kbImg=''; pintarImgField(); }
+function lerImagemResize(file, cb){
+  var r=new FileReader();
+  r.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var max=1600, w=img.width, h=img.height;
+      if(w>max||h>max){ if(w>=h){ h=Math.round(h*max/w); w=max; } else { w=Math.round(w*max/h); h=max; } }
+      var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      var out; try{ out=cv.toDataURL('image/jpeg',0.85); }catch(e){ out=r.result; }
+      cb(out);
+    };
+    img.onerror=function(){ alert('Não foi possível ler a imagem.'); };
+    img.src=r.result;
+  };
+  r.readAsDataURL(file);
 }
 function kbFechar(){ var m=document.getElementById('kbmodal'); m.classList.remove('on'); m.innerHTML=''; }
 function kbGuardar(id,btn){
   var dados={ titulo:valId('k_tit').trim(), canal:valId('k_canal'),
-              copy:(document.getElementById('k_copy')||{}).value||'', link:valId('k_link').trim() };
+              copy:(document.getElementById('k_copy')||{}).value||'', link:valId('k_link').trim(), imagem:kbImg||'' };
   if(!dados.titulo && !dados.copy.trim()){ alert('Escreva pelo menos o título ou a copy.'); return; }
   btn.textContent='A guardar…'; btn.disabled=true;
   var op = id ? IGDB.kanbanEditar(Object.assign({id:id},dados),KEY) : IGDB.kanbanCriar(dados,KEY);
@@ -583,6 +686,53 @@ function kbRemover(id){
   var bak=KB.slice();
   KB=KB.filter(function(c){return c.id!==id;}); pintarKanban();
   IGDB.kanbanRemover(id,KEY).catch(function(){ KB=bak; pintarKanban(); alert('Não foi possível remover. Tente novamente.'); });
+}
+// ---- pré-visualização de como a postagem vai ficar ----
+function previewFromForm(){
+  abrirPreview({ titulo:valId('k_tit').trim(), canal:valId('k_canal'),
+    copy:(document.getElementById('k_copy')||{}).value||'', imagem:kbImg||'' });
+}
+function abrirPreview(card){
+  if(!card) return;
+  var isBlog=(card.canal==='Blog');
+  var mock=isBlog? mockBlog(card) : mockLinkedIn(card);
+  var p=document.getElementById('kbprev');
+  p.innerHTML=
+    '<div class="kbp-bg" onclick="fecharPreview()"></div>'+
+    '<div class="kbp-cx">'+
+      '<div class="kbp-bar"><span>Pré-visualização · '+(isBlog?'Blog':'LinkedIn')+'</span>'+
+        '<button class="kbp-x" onclick="fecharPreview()">Fechar ✕</button></div>'+
+      '<div class="kbp-scroll">'+mock+'</div>'+
+    '</div>';
+  p.classList.add('on');
+}
+function fecharPreview(){ var p=document.getElementById('kbprev'); p.classList.remove('on'); p.innerHTML=''; }
+function mockLinkedIn(card){
+  var img=card.imagem? '<div class="li-img"><img src="'+card.imagem+'" alt=""></div>':'';
+  var tit=card.titulo? '<div class="li-tit">'+esc(card.titulo)+'</div>':'';
+  return '<div class="li-post">'+
+    '<div class="li-head">'+
+      '<div class="li-av"><img src="assets/logo.svg?v=18" alt=""></div>'+
+      '<div class="li-meta">'+
+        '<div class="li-nome">Império Global Telecomunicações</div>'+
+        '<div class="li-sub">Telecomunicações · Publicação</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="li-txt">'+tit+'<div class="li-copy">'+nl2br(card.copy||'')+'</div></div>'+
+    img+
+    '<div class="li-bar"><span>👍 Gosto</span><span>💬 Comentar</span><span>↪ Partilhar</span></div>'+
+  '</div>';
+}
+function mockBlog(card){
+  var hero=card.imagem? '<div class="bl-hero"><img src="'+card.imagem+'" alt=""></div>':'';
+  return '<article class="bl-post">'+
+    hero+
+    '<div class="bl-body">'+
+      '<div class="bl-kicker">Blog · Império Global Telecomunicações</div>'+
+      (card.titulo? '<h1 class="bl-tit">'+esc(card.titulo)+'</h1>':'')+
+      '<div class="bl-copy">'+nl2br(card.copy||'')+'</div>'+
+    '</div>'+
+  '</article>';
 }
 
 // ---------- visão individual (uma) ----------
