@@ -149,6 +149,11 @@
  .igblog .toc a{color:#2B2F36;font-size:15px;text-decoration:none}
  .igblog .toc a:hover{color:#0072CE}
  .igblog .article__body{max-width:800px;color:#2B2F36}
+ .igblog .tldr{background:#f4f7fa;border-left:3px solid #0072CE;border-radius:0 7px 7px 0;padding:18px 22px;margin:0 0 30px;max-width:800px}
+ .igblog .tldr > strong{display:block;font-family:'Archivo',sans-serif;color:#013F80;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+ .igblog .tldr ul{margin:0;padding:0;list-style:none}
+ .igblog .tldr li{position:relative;padding-left:16px;margin:6px 0;font-size:16px;line-height:1.55;color:#2B2F36}
+ .igblog .tldr li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;border-radius:2px;background:#0072CE}
  .igblog .article__body p{font-size:17.85px;line-height:1.75;margin:0 0 21px}
  .igblog .article__body p.lead{font-size:20.4px;color:#5b6572;line-height:1.6}
  .igblog .article__body h2{font-family:'Archivo',sans-serif;font-weight:600;font-size:27px;color:#013F80;line-height:1.2;letter-spacing:-.01em;margin:42px 0 17px}
@@ -762,6 +767,7 @@ function blogBody(copy){
   lines.forEach(function(raw){
     var l=raw.trim();
     if(!l){ flushLista(); return; }
+    if(/^~\s+/.test(l)){ return; }   // linhas "~ " são o resumo (tl;dr), tratadas à parte
     if(/^###\s+/.test(l)){ flushLista(); html+='<h3>'+inlineMd(l.replace(/^###\s+/,''))+'</h3>'; return; }
     if(/^##\s+/.test(l)){ flushLista(); var t=l.replace(/^##\s+/,''); html+='<h2 id="'+slugPt(t)+'">'+inlineMd(t)+'</h2>'; return; }
     if(/^(-|•|\*)\s+/.test(l)){ lista.push(inlineMd(l.replace(/^(-|•|\*)\s+/,''))); return; }
@@ -786,13 +792,17 @@ function mockBlog(card){
   var h1=temCapa? '' : (titulo? '<h1 class="art-h1">'+esc(titulo)+'</h1>':'');
   var meta='<p class="article-lead__meta"><span class="badge">'+esc(card.categoria||'Artigo')+'</span>'+
            'Por Equipa Império Global · '+dataHoje()+' · '+tempoLeitura(card.copy)+' min de leitura</p>';
+  // resumo "Em 30 segundos": linhas começadas por "~ "
+  var res=(card.copy||'').split('\n').filter(function(l){return /^~\s+/.test(l.trim());})
+            .map(function(l){return '<li>'+inlineMd(l.trim().replace(/^~\s+/,''))+'</li>';}).join('');
+  var tldr=res? '<div class="tldr"><strong>Em 30 segundos</strong><ul>'+res+'</ul></div>':'';
   return '<div class="igblog">'+
     '<section class="art-lead"><div class="art-container">'+
       '<span class="article-back">← Blog</span>'+ cover + meta +
     '</div></section>'+
     '<section class="art-sec"><div class="art-container"><div class="article">'+
       h1 + tocFromBody(card.copy||'') +
-      '<div class="article__body">'+ blogBody(card.copy||'') +'</div>'+
+      '<div class="article__body">'+ tldr + blogBody(card.copy||'') +'</div>'+
       '<div class="article-cta"><h2>Precisa de apoio técnico para o seu projeto?</h2>'+
         '<span class="btn btn--primario">Fale connosco</span></div>'+
     '</div></div></section>'+
