@@ -760,27 +760,59 @@ var MESES_PT=['janeiro','fevereiro','março','abril','maio','junho','julho','ago
 function dataHoje(){ var d=new Date(); return d.getDate()+' de '+MESES_PT[d.getMonth()]+' de '+d.getFullYear(); }
 function tempoLeitura(t){ var w=(t||'').trim().split(/\s+/).filter(Boolean).length; return Math.max(1, Math.round(w/200)); }
 function inlineMd(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>'); }
-function blogBody(copy){
-  var lines=(copy||'').replace(/\r/g,'').split('\n');
-  var html='', lista=[], primeiroP=true;
-  function flushLista(){ if(lista.length){ html+='<ul>'+lista.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>'; lista=[]; } }
-  lines.forEach(function(raw){
-    var l=raw.trim();
-    if(!l){ flushLista(); return; }
-    if(/^~\s+/.test(l)){ return; }   // linhas "~ " são o resumo (tl;dr), tratadas à parte
-    if(/^###\s+/.test(l)){ flushLista(); html+='<h3>'+inlineMd(l.replace(/^###\s+/,''))+'</h3>'; return; }
-    if(/^##\s+/.test(l)){ flushLista(); var t=l.replace(/^##\s+/,''); html+='<h2 id="'+slugPt(t)+'">'+inlineMd(t)+'</h2>'; return; }
-    if(/^(-|•|\*)\s+/.test(l)){ lista.push(inlineMd(l.replace(/^(-|•|\*)\s+/,''))); return; }
-    if(/^>\s+/.test(l)){ flushLista(); html+='<blockquote>'+inlineMd(l.replace(/^>\s+/,''))+'</blockquote>'; return; }
-    flushLista();
-    html+='<p'+(primeiroP?' class="lead"':'')+'>'+inlineMd(l)+'</p>'; primeiroP=false;
-  });
-  flushLista();
-  return html || '<p class="lead" style="color:#AEB6BF">(Escreva a copy para ver o artigo.)</p>';
-}
 function slugPt(t){ return String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+// realça um rótulo inicial do tipo "Nível 1 — ..." em negrito
+function realceRotulo(s){ return s.replace(/^([^\n—]{1,48}\s—)\s/, '<strong>$1</strong> '); }
+// converte o texto COLADO (sem marcas) numa estrutura de artigo, detetando
+// subtítulos e listas automaticamente; marcas manuais (## - > ** ~) continuam a valer.
+function parseBlocos(copy){
+  var raw=(copy||'').replace(/\r/g,'').replace(/ /g,' ');
+  // remove as linhas de resumo "~" (vão para o bloco "Em 30 segundos")
+  var texto=raw.split('\n').filter(function(l){return !/^~\s+/.test(l.trim());}).join('\n');
+  var blocos=texto.split(/\n\s*\n/).map(function(b){return b.replace(/^\s+|\s+$/g,'');}).filter(function(b){return b.length;});
+  if(blocos.length<=1){ blocos=texto.split(/\n/).map(function(b){return b.trim();}).filter(function(b){return b.length;}); }
+  function forma(b){
+    if(/^(##|###)\s+/.test(b)) return 'mdh';
+    var ls=b.split('\n').filter(function(l){return l.trim();});
+    if(ls.length && ls.every(function(l){return /^(-|•|\*)\s+/.test(l.trim());})) return 'mdul';
+    if(/^>\s+/.test(b)) return 'mdqt';
+    var umaLinha=b.indexOf('\n')<0, semFim=!/[.!?:]$/.test(b), palavras=b.split(/\s+/).length;
+    if(umaLinha && b.length<=74 && semFim && palavras<=11) return 'curto';  // subtítulo OU item de lista
+    return 'p';
+  }
+  var sh=blocos.map(forma), toks=[], i=0, temLead=false;
+  while(i<blocos.length){
+    var b=blocos[i], s=sh[i];
+    if(s==='mdh'){ var lvl=/^###/.test(b)?3:2; toks.push({t:'h'+lvl, text:b.replace(/^#{2,3}\s+/,'')}); i++; continue; }
+    if(s==='mdul'){ toks.push({t:'ul', items:b.split('\n').filter(function(l){return l.trim();}).map(function(l){return l.trim().replace(/^(-|•|\*)\s+/,'');})}); i++; continue; }
+    if(s==='mdqt'){ toks.push({t:'quote', text:b.replace(/^>\s+/,'')}); i++; continue; }
+    if(s==='curto'){
+      var j=i, grp=[]; while(j<blocos.length && sh[j]==='curto'){ grp.push(blocos[j]); j++; }
+      var aposDoisPontos=(i>0 && /:$/.test(blocos[i-1]));
+      if(grp.length>=2 || aposDoisPontos){ toks.push({t:'ul', items:grp}); }
+      else { toks.push({t:'h2', text:grp[0]}); }
+      i=j; continue;
+    }
+    if(!temLead){ toks.push({t:'lead', text:b.replace(/\n/g,' ')}); temLead=true; }
+    else toks.push({t:'p', text:b.replace(/\n/g,' ')});
+    i++;
+  }
+  return toks;
+}
+function blogBody(copy){
+  var toks=parseBlocos(copy);
+  if(!toks.length) return '<p class="lead" style="color:#AEB6BF">(Escreva a copy para ver o artigo.)</p>';
+  return toks.map(function(k){
+    if(k.t==='h2') return '<h2 id="'+slugPt(k.text)+'">'+inlineMd(k.text)+'</h2>';
+    if(k.t==='h3') return '<h3>'+inlineMd(k.text)+'</h3>';
+    if(k.t==='ul') return '<ul>'+k.items.map(function(x){return '<li>'+realceRotulo(inlineMd(x))+'</li>';}).join('')+'</ul>';
+    if(k.t==='quote') return '<blockquote>'+inlineMd(k.text)+'</blockquote>';
+    if(k.t==='lead') return '<p class="lead">'+inlineMd(k.text)+'</p>';
+    return '<p>'+realceRotulo(inlineMd(k.text))+'</p>';
+  }).join('');
+}
 function tocFromBody(copy){
-  var hs=[]; (copy||'').split('\n').forEach(function(raw){ var l=raw.trim(); if(/^##\s+/.test(l)&&!/^###/.test(l)) hs.push(l.replace(/^##\s+/,'')); });
+  var hs=parseBlocos(copy).filter(function(k){return k.t==='h2';}).map(function(k){return k.text;});
   if(hs.length<2) return '';
   return '<nav class="toc" aria-label="Neste artigo"><strong>Neste artigo</strong><ul>'+
     hs.map(function(h){return '<li><a href="#'+slugPt(h)+'">'+esc(h)+'</a></li>';}).join('')+'</ul></nav>';
