@@ -175,6 +175,8 @@
  .tabbar button:hover{color:#013F80}
  /* papel timbrado */
  .tintro{color:#79828D;margin:0 0 20px}
+ .avisoWord{background:#EEF3F8;border:1px solid #CBD5E0;border-left:4px solid #0072CE;border-radius:8px;padding:14px 16px;margin:0 0 22px;color:#2B2F36;font-size:14px;line-height:1.55}
+ .avisoWord2{margin-top:10px;background:#FFF6E8;border:1px solid #F0D9A8;border-radius:6px;padding:10px 12px;font-size:13px;color:#7a5a12}
  .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px}
  .tcard{background:#fff;border:1px solid #E1E7EC;border-radius:10px;padding:16px;text-align:center}
  .tcard h3{margin:0 0 12px;font-size:14px;color:#013F80}
@@ -460,7 +462,13 @@ function montarGrid(ops){
     box.innerHTML='<p class="tintro">Ainda não há folhas timbradas publicadas. Assim que forem aprovadas, aparecem aqui para descarregar.</p>';
     return;
   }
-  box.innerHTML='<p class="tintro">Escolha um modelo. <b>Abrir no Word</b> descarrega o timbrado como documento <b>.docx</b> — abre no Word, escreve o texto, imprime e guarda normalmente no computador. O timbrado fica de fundo em todas as páginas. Também pode escrever aqui no site ou baixar em PDF em branco.</p><div class="tgrid" id="tgrid"></div>';
+  box.innerHTML=
+    '<div class="avisoWord">'+
+      '<b>Para escrever no Word:</b> clique no botão azul <b>«Baixar Word editável (.docx)»</b> do modelo. '+
+      'Ele descarrega um ficheiro <b>.docx</b> que abre direto no Word — escreva o texto e imprima; o timbrado fica de fundo em todas as páginas.'+
+      '<div class="avisoWord2">⚠️ <b>Não use ficheiros .png</b> para editar. PNG é só imagem — se o Windows perguntar «com que aplicação abrir» ou o Word mostrar símbolos estranhos, é porque é um PNG, não o Word. Use sempre o botão abaixo.</div>'+
+    '</div>'+
+    '<div class="tgrid" id="tgrid"></div>';
   var grid=document.getElementById('tgrid');
   ops.forEach(function(op){
     var card=document.createElement('div'); card.className='tcard';
@@ -468,7 +476,7 @@ function montarGrid(ops){
     var prev=document.createElement('div'); prev.className='tprev';
     var folha=buildFolha(op); prev.appendChild(folha); card.appendChild(prev);
     var acts=document.createElement('div'); acts.className='acts';
-    acts.innerHTML='<button onclick="baixarWord(\''+op+'\')">Abrir no Word (.docx)</button>'+
+    acts.innerHTML='<button onclick="baixarWord(\''+op+'\')">📄 Baixar Word editável (.docx)</button>'+
                    '<button class="lk" onclick="abrirEditor(\''+op+'\')">Escrever no site</button>'+
                    '<button class="lk" onclick="baixarTimbrado(\''+op+'\',this)">PDF em branco</button>';
     card.appendChild(acts); grid.appendChild(card);
