@@ -61,6 +61,10 @@
  .topbar{display:flex;justify-content:flex-end;margin:0 0 10px}
  .topbar .novo{background:#1a9c53;color:#fff;border:0;border-radius:6px;padding:10px 16px;font:inherit;font-size:13px;font-weight:bold;cursor:pointer}
  .topbar .novo:hover{background:#158043}
+ .topbar{gap:8px}
+ .topbar .exp{background:#EEF3F8;color:#013F80;border:1px solid #CBD5E0;border-radius:6px;padding:10px 14px;font:inherit;font-size:13px;font-weight:bold;cursor:pointer}
+ .topbar .exp:hover{background:#DFE9F3}
+ .topbar .exp:disabled{opacity:.6;cursor:default}
  .edf textarea{width:100%;padding:9px 11px;border:1px solid #CBD5E0;border-radius:6px;font:inherit;font-size:14px;box-sizing:border-box;resize:vertical;line-height:1.5}
  .edf select{width:100%;padding:9px 11px;border:1px solid #CBD5E0;border-radius:6px;font:inherit;font-size:14px;box-sizing:border-box;background:#fff}
  /* kanban */
@@ -260,6 +264,7 @@
 <script src="assets/sig-core.js?v=16"></script>
 <script src="assets/timbrado-core.js?v=26"></script>
 <script src="assets/db.js?v=21"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 var esc=IGCore.esc;
 var CFG=null, PESSOAS=[], VIS=[];
@@ -383,7 +388,7 @@ function renderMaster(){
   var linhas=VIS.map(linhaTabela).join('');
   document.getElementById('conteudo').innerHTML=
     '<div class="painel"><div class="card" id="preview"></div></div>'+
-    (KEY?'<div class="topbar"><button class="novo" onclick="criarNova()">＋ Nova assinatura</button></div>':'')+
+    (KEY?'<div class="topbar"><button class="exp" onclick="exportarTodas(this)">⬇ Exportar todas (.zip)</button><button class="novo" onclick="criarNova()">＋ Nova assinatura</button></div>':'')+
     '<table class="tb" id="tabela"><thead><tr><th>Código</th><th>Nome</th><th>Função</th><th class="chk">Enviado</th><th style="text-align:right">Ações</th></tr></thead>'+
     '<tbody>'+linhas+'</tbody></table>'+
     '<div class="dica"><b id="contador"></b> · Passe o rato numa linha (ou toque em <b>Ver</b>) para pré-visualizar; marque a caixa <b>Enviado</b> quando entregar a cada colaborador.</div>';
@@ -432,6 +437,54 @@ function guardarNova(btn){
 function filtrarManterZero(){
   var bq=document.getElementById('busca');
   if(bq && (bq.value||'').trim()){ filtrar(); } else { VIS=PESSOAS.slice(); renderMaster(); }
+}
+// ---------- exportar todas as assinaturas num .zip (master) ----------
+function exportarTodas(btn){
+  if(typeof JSZip==='undefined'){ alert('A ferramenta de exportação ainda está a carregar. Aguarde uns segundos e tente de novo.'); return; }
+  var lista=(PESSOAS&&PESSOAS.length)?PESSOAS:VIS;
+  if(!lista||!lista.length){ alert('Não há assinaturas para exportar.'); return; }
+  var txt0=btn.textContent; btn.textContent='A preparar…'; btn.disabled=true;
+  try{
+    var zip=new JSZip(), pasta=zip.folder('Assinaturas Imperio Global'), fh=pasta.folder('HTML'), cards=[];
+    lista.forEach(function(p){
+      var sig=IGCore.montar(CFG,p), base=p.codigo+' - '+IGCore.slug(p.nome);
+      var doc='<!DOCTYPE html>\n<html lang="'+(p.idioma==='fr'?'fr':'pt-PT')+'">\n<head>\n<meta charset="utf-8">\n'+
+        '<title>Assinatura '+esc(p.codigo)+' — '+esc(p.nome)+'</title>\n</head>\n'+
+        '<body style="margin:24px;font-family:Arial,Helvetica,sans-serif;background:#ffffff;">\n'+
+        '<!-- Copie tudo (Ctrl+A, Ctrl+C) e cole no campo de assinatura do email -->\n'+sig+'\n</body>\n</html>\n';
+      fh.file(base+'.html', doc);
+      cards.push({codigo:p.codigo,nome:p.nome,cargo:p.cargo,base:base,html:sig});
+    });
+    var linhas=cards.map(function(c){
+      return '<div class="card"><div class="cab"><span class="cod">'+esc(c.codigo)+'</span> '+esc(c.nome)+
+        (c.cargo?(' · <span class="cg">'+esc(c.cargo)+'</span>'):'')+'</div><div class="sig">'+c.html+'</div>'+
+        '<div class="lk"><a href="HTML/'+encodeURIComponent(c.base)+'.html" target="_blank">abrir HTML para copiar</a></div></div>';
+    }).join('\n');
+    var index='<!DOCTYPE html>\n<html lang="pt-PT"><head><meta charset="utf-8">'+
+      '<meta name="viewport" content="width=device-width,initial-scale=1"><title>Assinaturas — Império Global</title><style>'+
+      'body{margin:0;background:#F4F7FA;color:#2B2F36;font-family:Arial,Helvetica,sans-serif}'+
+      '.w{max-width:900px;margin:0 auto;padding:28px 20px 70px}'+
+      'h1{color:#013F80;font-size:22px;margin:0 0 4px}.sub{color:#79828D;font-size:14px;margin:0 0 24px}'+
+      '.card{background:#fff;border:1px solid #E1E7EC;border-radius:10px;padding:16px 18px;margin-bottom:18px}'+
+      '.cab{font-size:14px;color:#013F80;font-weight:bold;margin-bottom:12px}.cab .cod{color:#0072CE}.cab .cg{color:#79828D;font-weight:normal}'+
+      '.sig{overflow-x:auto}.lk{margin-top:12px;font-size:12.5px}.lk a{color:#0072CE;text-decoration:none}.lk a:hover{text-decoration:underline}'+
+      '</style></head><body><div class="w"><h1>Assinaturas de correio eletrónico</h1>'+
+      '<p class="sub">Império Global Telecomunicações · '+cards.length+' assinaturas · pasta <b>HTML</b> para copiar para o email</p>'+
+      linhas+'</div></body></html>';
+    pasta.file('index.html', index);
+    pasta.file('LEIA-ME.txt',
+      'ASSINATURAS — IMPÉRIO GLOBAL\n\nComo usar:\n'+
+      '1. Abra o index.html para ver todas as assinaturas.\n'+
+      '2. Para instalar no email: abra o ficheiro da pasta HTML, selecione tudo (Ctrl+A), copie (Ctrl+C) e cole no campo de assinatura do Outlook/Gmail.\n\n'+
+      'Total: '+cards.length+' assinaturas.\n');
+    zip.generateAsync({type:'blob'}).then(function(blob){
+      var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+      a.download='Assinaturas Imperio Global.zip';
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
+      btn.textContent=txt0; btn.disabled=false;
+    }).catch(function(){ btn.textContent=txt0; btn.disabled=false; alert('Não foi possível gerar o ficheiro. Tente novamente.'); });
+  }catch(e){ btn.textContent=txt0; btn.disabled=false; alert('Erro ao exportar: '+((e&&e.message)||'')); }
 }
 function filtrar(){
   var q=(document.getElementById('busca').value||'').trim().toLowerCase();
