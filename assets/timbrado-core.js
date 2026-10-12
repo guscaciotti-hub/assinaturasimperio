@@ -103,7 +103,7 @@
     op=String(op);
     if(op==='1'){
       var img=document.createElement('img');
-      img.src='assets/timbrado-op1.png?v=25';
+      img.src='assets/timbrado-op1.png?v=26';
       img.alt='Papel timbrado Império Global';
       img.setAttribute('style','position:absolute;top:0;left:0;width:100%;height:auto;display:block;');
       return img;
